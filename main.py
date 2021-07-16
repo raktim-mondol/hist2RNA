@@ -45,11 +45,4 @@ x_train = model.predict(x_train)
 print('X_Train Shape after VAE :', x_train.shape)
 x_test = model.predict(x_test)
 
-
-
-
-
-
-
-
-       print('X_Test Shape after VAE :', x_test.shape)
+print('X_Test Shape after VAE :', x_test.shape)
