@@ -1,5 +1,5 @@
 ## Gene Prediction
-![hist2RNA banner](https://github.com/raktim-mondol/hist2RNA/blob/main/hist2RNA_banner.pdf)
+![hist2RNA banner](https://github.com/raktim-mondol/hist2RNA/blob/main/logo_hist2RNA.png)
 
 Gene prediction from histopathology images
 
