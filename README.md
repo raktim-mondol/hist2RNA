@@ -46,8 +46,7 @@ The following data sources have been used in this project:
 ## Installation
 
 1. Clone the repository:
-
-git clone https://github.com/raktim-mondol/hist2RNA.git
+``` git clone https://github.com/raktim-mondol/hist2RNA.git``` 
 
 2. Change directory to the cloned repository:
 ``` cd hist2RNA ```
