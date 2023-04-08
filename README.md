@@ -8,7 +8,7 @@
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Data Source](#data)
+- [Data Sources](#data)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -39,8 +39,8 @@
 
 
 ## Data Sources:
-### Genetic Data: 
-    -http://www.cbioportal.org/study/summary?id=brca_tcga
-    - http://www.cbioportal.org/study/summary?id=brca_tcga_pub2015
-### Diagnostic Slide (DS): https://portal.gdc.cancer.gov/
-### DS Download guideline: http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/
+Genetic Data: 
+http://www.cbioportal.org/study/summary?id=brca_tcga
+http://www.cbioportal.org/study/summary?id=brca_tcga_pub2015
+Diagnostic Slide (DS): https://portal.gdc.cancer.gov/
+DS Download guideline: http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/
