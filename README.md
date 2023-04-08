@@ -1,4 +1,4 @@
-# hist2RNA: An Efficient Deep Learning Architecture to Predict Gene Expression from Breast Cancer Histopathology Images
+# hist2RNA: Predicting Gene Expression from Histopathology Images
 
 ![hist2RNA banner](https://github.com/raktim-mondol/hist2RNA/blob/main/banner_hist2RNA_updated.png)
 
