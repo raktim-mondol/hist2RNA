@@ -42,6 +42,49 @@ To install hist2RNA, follow these steps:
 
 Before training the model, you'll need to prepare your dataset. Ensure that your data is organized into separate folders for training and testing. Each folder should contain subfolders for each class, with the corresponding images inside.
 
+### Data Structure of Images
+
+The hist2RNA project expects the dataset to be organized in a specific structure to ensure proper retrieval of images for training and validation. The dataset should be organized into separate folders for each patient, with each patient folder containing 1000+ patches of histopathology images.
+
+Here is an example of the expected directory structure:
+```bash
+dataset/
+│
+├── patient_01/
+│ ├── patch_0001.png
+│ ├── patch_0002.png
+│ ├── ...
+│ └── patch_1000.png
+│
+├── patient_02/
+│ ├── patch_0001.png
+│ ├── patch_0002.png
+│ ├── ...
+│ └── patch_1000.png
+│
+└── ...
+```
+
+Make sure to organize your dataset according to this structure before running the training script. The training script will process the data accordingly and retrieve the images based on this organization.
+### Data Structure of Gene Expression
+The hist2RNA project requires gene expression data to be provided as labels for each patient during training. Each patient should have 138 gene expression values corresponding to their histopathology images.
+
+The gene expression data should be organized in a CSV (Comma Separated Values) file with the following structure:
+```bash
+patient_id,gene_1,gene_2,gene_3,...,gene_138
+patient_01,0.23,0.56,0.78,...,1.32
+patient_02,0.34,0.67,0.82,...,1.45
+patient_03,0.28,0.54,0.75,...,1.28
+...
+```
+The first row of the CSV file should contain the column names, with the first column being the `patient_id` and the subsequent columns being the gene expression values for each gene (`gene_1`, `gene_2`, ..., `gene_138`).
+
+Each subsequent row should contain the patient ID and the gene expression values for each of the 138 genes, separated by commas.
+
+Ensure that your gene expression data is formatted according to this structure before running the training script. The training script will read the gene expression data and associate it with the corresponding patient's histopathology images during training.
+
+
+
 ## Training the Model
 
 To train the hist2RNA model, use the `train.py` script as follows:
