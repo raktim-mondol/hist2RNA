@@ -13,7 +13,7 @@ Welcome to the hist2RNA documentation! This guide will walk you through the proc
 7. [Advanced Usage](#usage)
 8. [Troubleshooting](#troubleshooting)
 9. [Frequently Asked Questions (FAQs)](#frequently-asked-questions-faqs)
-10. 10. [References](#references)
+10. [References](#references)
 
 ## Requirements
 
