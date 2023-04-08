@@ -47,7 +47,8 @@ Before training the model, you'll need to prepare your dataset. Ensure that your
 To train the hist2RNA model, use the `train.py` script as follows:
 
 ```bash
-python train.py --train_data_path ./data/train --epochs 50 --batch_size 32```
+python train.py --train_data_path ./data/train --epochs 50 --batch_size 32
+```
 
 This command will train the model using the training data in the ./data/train folder, with 50 epochs and a batch size of 32.
 
