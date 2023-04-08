@@ -10,9 +10,10 @@ Welcome to the hist2RNA documentation! This guide will walk you through the proc
 4. [Training the Model](#training-the-model)
 5. [Evaluating the Model](#evaluating-the-model)
 6. [Predicting Gene Expression](#predicting-gene-expression)
-7. [Troubleshooting](#troubleshooting)
-8. [Advanced Usage](#usage)
-9. [References](#references)
+7. [Advanced Usage](#usage)
+8. [Troubleshooting](#troubleshooting)
+9. [Frequently Asked Questions (FAQs)](#frequently-asked-questions-faqs)
+10.[References](#references)
 
 ## Requirements
 
