@@ -8,17 +8,18 @@
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Data Source](#data)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## Introduction
 
-**hist2RNA** is an innovative deep learning-based project that aims to predict gene expression from breast cancer histopathology images. This project employs a cutting-edge architecture to unlock valuable insights and facilitate improved understanding of the underlying genetic processes in breast cancer.
+**hist2RNA** is an efficient deep learning-based project that aims to predict gene expression from breast cancer histopathology images. This project employs a efficient architecture to unlock underlying genetic expression in breast cancer.
 
 ## Features
 
 - A state-of-the-art deep learning model tailored for breast cancer histopathology images
-- Efficient prediction of gene expression from histopathology images
+- Efficient prediction of gene expression from histopathology images which means less training time
 - User-friendly command-line interface
 - Comprehensive documentation and tutorials
 
@@ -37,13 +38,9 @@
 1. Clone the repository:
 
 
-
-
-
-Data Sources:
-Genetic Data: http://www.cbioportal.org/study/summary?id=brca_tcga
-and http://www.cbioportal.org/study/summary?id=brca_tcga_pub2015
-
-Diagnostic Slide (DS): https://portal.gdc.cancer.gov/
-
-DS Download guideline: http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/
+## Data Sources:
+### Genetic Data: 
+    -http://www.cbioportal.org/study/summary?id=brca_tcga
+    - http://www.cbioportal.org/study/summary?id=brca_tcga_pub2015
+### Diagnostic Slide (DS): https://portal.gdc.cancer.gov/
+### DS Download guideline: http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/
