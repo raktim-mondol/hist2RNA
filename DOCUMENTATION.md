@@ -175,11 +175,6 @@ To fine-tune the hyperparameters of your model, such as the learning rate, batch
 
 Add this section to the `DOCUMENTATION.md` file in the `./docs` folder. As before, remember to replace `yourusername` with your actual GitHub username and update the repository URL accordingly. Adjust file paths or other details depending on your project's structure as needed.
 
-9. [Frequently Asked Questions (FAQs)](#frequently-asked-questions-faqs)
-
-## Troubleshooting
-If you encounter any issues while using hist2RNA, please refer to the README.md file, check the existing issues, or create a new issue with a detailed description of the problem.
-
 ## Frequently Asked Questions (FAQs)
 
 In this section, we provide answers to some frequently asked questions about the hist2RNA project.
@@ -201,6 +196,11 @@ A: Yes, you can adapt hist2RNA to work with other types of cancer by changing th
 ### Q: Can I use hist2RNA with other imaging modalities, like MRI or CT scans?
 
 A: While hist2RNA is designed for histopathology images, it is possible to adapt the model for other imaging modalities. You would need to preprocess the data to ensure compatibility with the model and make any necessary adjustments to the model architecture.
+
+
+## Troubleshooting
+If you still encounter any issues while using hist2RNA, please refer to the README.md file, check the existing issues, or create a new issue with a detailed description of the problem.
+
 
 ## References
 
