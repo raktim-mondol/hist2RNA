@@ -13,7 +13,7 @@ Welcome to the hist2RNA documentation! This guide will walk you through the proc
 7. [Advanced Usage](#usage)
 8. [Troubleshooting](#troubleshooting)
 9. [Frequently Asked Questions (FAQs)](#frequently-asked-questions-faqs)
-10.[References](#references)
+10. 10. [References](#references)
 
 ## Requirements
 
@@ -114,11 +114,6 @@ python predict.py --image_path ./data/sample.jpg --model_path ./models/hist2RNA_
 ```
 This command will use the trained model saved in ./models/hist2RNA_model.h5 to predict gene expression for the image located at ./data/sample.jpg.
 
-## Troubleshooting
-If you encounter any issues while using hist2RNA, please refer to the README.md file, check the existing issues, or create a new issue with a detailed description of the problem.
-
-
-8. [Advanced Usage](#advanced-usage)
 
 ## Advanced Usage
 
@@ -182,6 +177,8 @@ Add this section to the `DOCUMENTATION.md` file in the `./docs` folder. As befor
 
 9. [Frequently Asked Questions (FAQs)](#frequently-asked-questions-faqs)
 
+## Troubleshooting
+If you encounter any issues while using hist2RNA, please refer to the README.md file, check the existing issues, or create a new issue with a detailed description of the problem.
 
 ## Frequently Asked Questions (FAQs)
 
@@ -205,7 +202,6 @@ A: Yes, you can adapt hist2RNA to work with other types of cancer by changing th
 
 A: While hist2RNA is designed for histopathology images, it is possible to adapt the model for other imaging modalities. You would need to preprocess the data to ensure compatibility with the model and make any necessary adjustments to the model architecture.
 
-10. [References](#references)
 ## References
 
 Below are some key references and resources for the hist2RNA project:
