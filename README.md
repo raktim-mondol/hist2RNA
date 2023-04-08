@@ -67,7 +67,7 @@ The following data sources have been used in this project:
 ```python predict.py --image_path ./data/sample.jpg --model_path ./models/hist2RNA_model.h5```
 
 
-For detailed usage instructions, please refer to the [documentation](./docs/).
+For detailed usage instructions, please refer to the [documentation](./DOCUMENTATION.md).
 
 ## Contributing
 
