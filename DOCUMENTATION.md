@@ -102,11 +102,11 @@ datagen = ImageDataGenerator(
 # Load the training data with the applied augmentation
 train_data = datagen.flow_from_directory(train_data_path, ...)
 
-## Transfer Learning
+### Transfer Learning
 To leverage the power of pre-trained models, you can use transfer learning. This approach involves using the weights from a pre-trained model as a starting point for training your model. Transfer learning can improve the performance of your model, especially when dealing with limited datasets. To implement transfer learning, modify the model.py file to include a pre-trained model (e.g., VGG16, ResNet50, etc.) as the base of your model architecture.
 
 
-## Monitoring Training Progress
+### Monitoring Training Progress
 To monitor the training progress, you can use TensorBoard, a visualization tool provided by TensorFlow. To enable TensorBoard, add the following lines to the train.py script:
 
 ```python 
