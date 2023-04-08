@@ -11,6 +11,8 @@ Welcome to the hist2RNA documentation! This guide will walk you through the proc
 5. [Evaluating the Model](#evaluating-the-model)
 6. [Predicting Gene Expression](#predicting-gene-expression)
 7. [Troubleshooting](#troubleshooting)
+8. [Advanced Usage](#usage)
+9. [References](#references)
 
 ## Requirements
 
@@ -178,7 +180,7 @@ To fine-tune the hyperparameters of your model, such as the learning rate, batch
 Add this section to the `DOCUMENTATION.md` file in the `./docs` folder. As before, remember to replace `yourusername` with your actual GitHub username and update the repository URL accordingly. Adjust file paths or other details depending on your project's structure as needed.
 
 9. [Frequently Asked Questions (FAQs)](#frequently-asked-questions-faqs)
-10. [References](#references)
+
 
 ## Frequently Asked Questions (FAQs)
 
@@ -202,6 +204,7 @@ A: Yes, you can adapt hist2RNA to work with other types of cancer by changing th
 
 A: While hist2RNA is designed for histopathology images, it is possible to adapt the model for other imaging modalities. You would need to preprocess the data to ensure compatibility with the model and make any necessary adjustments to the model architecture.
 
+10. [References](#references)
 ## References
 
 Below are some key references and resources for the hist2RNA project:
