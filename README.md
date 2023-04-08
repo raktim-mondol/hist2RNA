@@ -5,10 +5,10 @@
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
+- [Data Sources](#data)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Data Sources](#data)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -22,6 +22,16 @@
 - Efficient prediction of gene expression from histopathology images which means less training time
 - User-friendly command-line interface
 - Comprehensive documentation and tutorials
+
+## Data Sources
+
+The following data sources have been used in this project:
+
+- Genetic Data:
+  - [BRCA TCGA](http://www.cbioportal.org/study/summary?id=brca_tcga)
+  - [BRCA TCGA Pub2015](http://www.cbioportal.org/study/summary?id=brca_tcga_pub2015)
+- Diagnostic Slide (DS): [GDC Data Portal](https://portal.gdc.cancer.gov/)
+- DS Download Guideline: [Download TCGA Digital Pathology Images (FFPE)](http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/)
 
 ## Requirements
 
@@ -38,9 +48,5 @@
 1. Clone the repository:
 
 
-## Data Sources:
-Genetic Data: 
-http://www.cbioportal.org/study/summary?id=brca_tcga
-http://www.cbioportal.org/study/summary?id=brca_tcga_pub2015
-Diagnostic Slide (DS): https://portal.gdc.cancer.gov/
-DS Download guideline: http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/
+
+
