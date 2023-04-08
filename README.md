@@ -5,7 +5,7 @@
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
-- [Data Sources](#data)
+- [Data Sources](#data-sources)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
