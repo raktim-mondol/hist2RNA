@@ -102,6 +102,7 @@ datagen = ImageDataGenerator(
 # Load the training data with the applied augmentation
 train_data = datagen.flow_from_directory(train_data_path, ...)
 
+```
 ### Transfer Learning
 To leverage the power of pre-trained models, you can use transfer learning. This approach involves using the weights from a pre-trained model as a starting point for training your model. Transfer learning can improve the performance of your model, especially when dealing with limited datasets. To implement transfer learning, modify the model.py file to include a pre-trained model (e.g., VGG16, ResNet50, etc.) as the base of your model architecture.
 
@@ -124,5 +125,50 @@ model.fit(..., callbacks=[tensorboard_callback])
 To visualize the training progress, run TensorBoard in your terminal:
 
 ```python
-tensorboard --logdir logs/fit```
+tensorboard --logdir logs/fit
+```
+Then, open your browser and navigate to the URL displayed in the terminal (usually http://localhost:6006/).
+
+### Fine-Tuning Hyperparameters
+To fine-tune the hyperparameters of your model, such as the learning rate, batch size, or number of epochs, you can modify the relevant arguments in the train.py script. Experimenting with different hyperparameters can help you optimize the performance of your model.
+
+Add this section to the `DOCUMENTATION.md` file in the `./docs` folder. As before, remember to replace `yourusername` with your actual GitHub username and update the repository URL accordingly. Adjust file paths or other details depending on your project's structure as needed.
+
+9. [Frequently Asked Questions (FAQs)](#frequently-asked-questions-faqs)
+10. [References](#references)
+
+## Frequently Asked Questions (FAQs)
+
+In this section, we provide answers to some frequently asked questions about the hist2RNA project.
+
+### Q: How can I improve the model's performance?
+
+A: To improve the model's performance, you can try the following approaches:
+
+- Increase the size or diversity of the training dataset.
+- Apply data augmentation techniques (see the [Advanced Usage](#advanced-usage) section).
+- Use transfer learning with pre-trained models (see the [Advanced Usage](#advanced-usage) section).
+- Fine-tune the model's hyperparameters, such as the learning rate, batch size, or number of epochs (see the [Advanced Usage](#advanced-usage) section).
+- Modify the model architecture to include additional or different layers (see the [Advanced Usage](#advanced-usage) section).
+
+### Q: Can I use hist2RNA with other types of cancer?
+
+A: Yes, you can adapt hist2RNA to work with other types of cancer by changing the dataset and adjusting the model architecture as needed. However, the current implementation is tailored specifically for breast cancer histopathology images, and additional modifications might be necessary for optimal performance with other types of cancer.
+
+### Q: Can I use hist2RNA with other imaging modalities, like MRI or CT scans?
+
+A: While hist2RNA is designed for histopathology images, it is possible to adapt the model for other imaging modalities. You would need to preprocess the data to ensure compatibility with the model and make any necessary adjustments to the model architecture.
+
+## References
+
+Below are some key references and resources for the hist2RNA project:
+
+1. Original paper: Not Published Yet(#)
+2. TensorFlow: [https://www.tensorflow.org/](https://www.tensorflow.org/)
+3. Keras: [https://keras.io/](https://keras.io/)
+4. TCGA data portal: [https://portal.gdc.cancer.gov/](https://portal.gdc.cancer.gov/)
+5. cBioPortal: [http://www.cbioportal.org/](http://www.cbioportal.org/)
+6. Andrew Janowczyk's guide to downloading TCGA digital pathology images: [http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/](http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/)
+
+
 
