@@ -1,4 +1,4 @@
-# hist2RNA: Predicting Gene Expression from Histopathology Images
+# hist2RNA: Predicting Gene Expression from Histopathology Images [[Paper]](https://www.mdpi.com/2072-6694/15/9/2569)
 
 ![hist2RNA banner](https://github.com/raktim-mondol/hist2RNA/blob/main/banner_hist2RNA_updated.png)
 
