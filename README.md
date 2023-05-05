@@ -43,6 +43,20 @@ The following data sources have been used in this project:
 - OpenCV
 - Matplotlib
 
+### Image preprocessing
+
+#### Annotation and Patch Creation
+
+- Qupath
+
+#### Image Color Normalization
+
+- Python implementation: [Normalizing H&E Images](https://github.com/bnsreenu/python_for_microscopists/blob/master/122_normalizing_HnE_images.py)
+
+- Actual Matlab implementation: [Staining Normalization](https://github.com/mitkovetta/staining-normalization/blob/master/normalizeStaining.m)
+
+- Reference: [Macenko et al. (2009) - A method for normalizing histology slides for quantitative analysis](http://wwwx.cs.unc.edu/~mn/sites/default/files/macenko2009.pdf)
+
 ## Installation
 
 1. Clone the repository:
@@ -53,17 +67,6 @@ The following data sources have been used in this project:
 
 3. Install the required packages:
 ```pip install -r requirements.txt```
-
-
-## Usage
-### Image preprocessing:
-  *Annotation and Patch Creation
-   *Qupath
-  *Image Color Normalization
-  Image color normalization is an essential preprocessing step to account for variations in staining protocols and image acquisition settings. It ensures consistent color representation across    different samples and enables reliable image analysis.
-Python Implementation: [Link to Code](https://github.com/bnsreenu/python_for_microscopists/blob/master/122_normalizing_HnE_images.py)
-MATLAB Implementation: [Link to Code](https://github.com/mitkovetta/staining-normalization/blob/master/normalizeStaining.m)
-Reference Paper: [Macenko et al., 2009](http://wwwx.cs.unc.edu/~mn/sites/default/files/macenko2009.p)
   
   
 1. Train the model:
