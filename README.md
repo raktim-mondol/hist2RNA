@@ -44,7 +44,7 @@ The following data sources have been used in this project:
 - Matplotlib
 
 ### Image preprocessing <span style="background-color: yellow;">highlighted</span> word.
-
+This is an example sentence with a <span style="background-color: yellow;">highlighted</span> word.
 #### Annotation and Patch Creation
 
 - [Qupath Guideline](https://github.com/raktim-mondol/qu-path)
