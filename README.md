@@ -43,7 +43,7 @@ The following data sources have been used in this project:
 - OpenCV
 - Matplotlib
 
-### Image preprocessing
+### Image preprocessing <span style="background-color: yellow;">highlighted</span> word.
 
 #### Annotation and Patch Creation
 
