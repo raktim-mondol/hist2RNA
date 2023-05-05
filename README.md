@@ -47,7 +47,7 @@ The following data sources have been used in this project:
 
 #### Annotation and Patch Creation
 
-- Qupath
+- [Qupath Guideline](https://github.com/raktim-mondol/qu-path)
 
 #### Image Color Normalization
 
