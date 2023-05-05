@@ -56,7 +56,12 @@ The following data sources have been used in this project:
 
 
 ## Usage
-
+###Image preprocessing:
+  ####Annotation and Patch Creation
+  Qupath
+  ####Image Color Normalization 
+  Ref: https://github.com/bnsreenu/python_for_microscopists/blob/master/122_normalizing_HnE_images.py
+  
 1. Train the model:
 ```python
 python train.py --train_data_path ./data/train --epochs 50 --batch_size 32
