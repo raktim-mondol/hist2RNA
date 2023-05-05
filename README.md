@@ -43,14 +43,13 @@ The following data sources have been used in this project:
 - OpenCV
 - Matplotlib
 
-### Image preprocessing <span style="background-color: yellow;">highlighted</span> word.
-This is an example sentence with a <mark>highlighted</mark> word in a GitHub README.
+## Image preprocessing
 
-#### Annotation and Patch Creation
+### Annotation and Patch Creation
 
 - [Qupath Guideline](https://github.com/raktim-mondol/qu-path)
 
-#### Image Color Normalization
+### Image Color Normalization
 
 - Python implementation: [Normalizing H&E Images](https://github.com/bnsreenu/python_for_microscopists/blob/master/122_normalizing_HnE_images.py)
 
