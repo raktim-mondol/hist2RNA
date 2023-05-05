@@ -56,13 +56,15 @@ The following data sources have been used in this project:
 
 
 ## Usage
-###Image preprocessing:
-  Annotation and Patch Creation
-  Qupath
-  Image Color Normalization 
-  Ref: https://github.com/bnsreenu/python_for_microscopists/blob/master/122_normalizing_HnE_images.py
-  Actual Matlab Implementation: https://github.com/mitkovetta/staining-normalization/blob/master/normalizeStaining.m
-  Reference: http://wwwx.cs.unc.edu/~mn/sites/default/files/macenko2009.pdf
+* Image preprocessing:
+  * Annotation and Patch Creation
+  *Qupath
++Image Color Normalization
+Image color normalization is an essential preprocessing step to account for variations in staining protocols and image acquisition settings. It ensures consistent color representation across different samples and enables reliable image analysis.
+
+Python Implementation: [Link to Code](https://github.com/bnsreenu/python_for_microscopists/blob/master/122_normalizing_HnE_images.py)
+MATLAB Implementation: [Link to Code](https://github.com/mitkovetta/staining-normalization/blob/master/normalizeStaining.m)
+Reference Paper: [Macenko et al., 2009](http://wwwx.cs.unc.edu/~mn/sites/default/files/macenko2009.p)
   
   
 1. Train the model:
