@@ -57,10 +57,13 @@ The following data sources have been used in this project:
 
 ## Usage
 ###Image preprocessing:
-  ####Annotation and Patch Creation
+  Annotation and Patch Creation
   Qupath
-  ####Image Color Normalization 
+  Image Color Normalization 
   Ref: https://github.com/bnsreenu/python_for_microscopists/blob/master/122_normalizing_HnE_images.py
+  Actual Matlab Implementation: https://github.com/mitkovetta/staining-normalization/blob/master/normalizeStaining.m
+  Reference: http://wwwx.cs.unc.edu/~mn/sites/default/files/macenko2009.pdf
+  
   
 1. Train the model:
 ```python
