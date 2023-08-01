@@ -23,7 +23,7 @@ from torch.utils.data import random_split
 
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
-from macenko_color_normalizer import MacenkoColorNormalization
+from color_normalizer import MacenkoColorNormalization
 from data_load import PatientDataset 
 from torchvision.models import (resnet50, ResNet50_Weights, resnet18, ResNet18_Weights, 
                                 vit_l_32, ViT_L_32_Weights, vit_l_16, ViT_L_16_Weights, 
