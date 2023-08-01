@@ -4,6 +4,8 @@ class PatientDataset(Dataset):
     def __init__(self, slides_dir, patient_ids, gene_expression_file, transform=None, color_normalization=None):
         self.slides_dir = slides_dir
         self.gene_expression_data = pd.read_csv(gene_expression_file, index_col='PATIENT_ID')
+        # Apply the log2(1+x) transformation to the entire gene_expression_data DataFrame
+        self.gene_expression_data = np.log2(1 + self.gene_expression_data)
 
         self.patient_ids = patient_ids
         
