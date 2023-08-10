@@ -35,8 +35,8 @@ The following data sources have been used in this project:
 
 ## Requirements
 
-- Python 3.7+
-- TensorFlow 2.0+
+- Python 3.9+
+- Pytorch 2.0
 - NumPy
 - pandas
 - scikit-learn
