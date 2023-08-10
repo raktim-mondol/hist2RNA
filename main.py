@@ -7,6 +7,8 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import random
+import csv
+import pandas as pd
 
 import matplotlib.pyplot as plt
 import torch
@@ -30,7 +32,19 @@ from torchvision.models import (resnet50, ResNet50_Weights, resnet18, ResNet18_W
                                 maxvit_t, MaxVit_T_Weights, swin_b, Swin_B_Weights)
 from scipy.stats import spearmanr
 import numpy as np
+from tqdm import tqdm
 import csv
+
+def set_seeds(seed=0):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+#for reproducibility 
+set_seeds()
 
 # Hyperparameters
 LR = 0.001
@@ -105,23 +119,14 @@ def get_base_model_and_transforms(model_name):
     return model, num_features, preprocess
 
 
-# def collate_fn_seln(batch):
-#     # choose number of patches
-#     # num_patches = 500  
-  
-#     # separate the images and gene expression
-#     images, gene_expression = zip(*batch)
-    
-#     # images = [img[torch.randperm(img.size(0))[:num_patches]] for img in images]
-  
-#     # convert lists into tensors
-#     images = torch.stack(images)  # stacking images together to make a tensor
-#     gene_expression = torch.stack(gene_expression)  # assumes durations is a list of tensors
-#     return images, gene_expression
-  
 def collate_fn(batch):
-    patient_ids,  gene_expression = zip(*batch)
-    return images, gene_expression
+    images, patient_id = zip(*batch)
+    clipped_images = []
+    for img in images:
+        if len(img) > 500:
+            img = img[:500]  # If more than 1000 patches, clip it to 1000
+        clipped_images.append(img)
+    return clipped_images, patient_id
 
 
 class EarlyStopping:
@@ -166,11 +171,13 @@ class EarlyStopping:
 
 
 class hist2RNA(nn.Module):
-    def __init__(self, base_model, input_features):
+    def __init__(self, base_model, input_features, batch_size):
         super(hist2RNA, self).__init__()
         
         # Use the provided base model
         self.base_model = base_model
+        
+        self.batch_size = batch_size
         
         # 1D Convolution blocks
         self.c1 = nn.Sequential(
@@ -193,51 +200,58 @@ class hist2RNA(nn.Module):
       
         # Output layer
         self.output = nn.Sequential(
-            nn.Linear(in_features=512, out_features=138)
+            nn.Linear(in_features=512, out_features=50)
         )
         
     def forward(self, x):
-        # Extract features using the base model
-        batch_size, num_images, c, h, w = x.shape
+        
+        batch_size = x[0].size(0)
+        #print(batch_size)
+      
         aggregated_features_list = []
         
-        for i in range(batch_size):
-            patient_images = x[i]
+        for patient_images in x:
             patient_features = self.base_model(patient_images)
             aggregated_feature = patient_features.mean(dim=0)
             aggregated_features_list.append(aggregated_feature)
         
         aggregated_features = torch.stack(aggregated_features_list, dim=0)
-        
+        print(aggregated_features.shape)
+        print(aggregated_features.unsqueeze(2).shape)
+        #[12, 512, 1]
         x = self.c1(aggregated_features.unsqueeze(2))
         x = self.c2(x)
         x = self.c3(x)
-        x = self.global_avg_pool(x)
+        x = self.global_avg_pool(x).squeeze(-1)
         x = self.output(x)
-        return x.squeeze(1)
+        return x
 
 # Setup device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 base_model, num_features, preprocess = get_base_model_and_transforms(BASE_MODEL_NAME)
 
-transform = preprocess
-color_normalization = MacenkoColorNormalization()
 
-dataset = PatientDataset(slides_dir, patient_ids, gene_expression_file, transform=transform, color_normalization=color_normalization)
+color_normalization = MacenkoColorNormalization()
+transform = preprocess
+
+
+dataset = PatientDataset(slides_dir, train_patient_ids, gene_expression_file, transform=transform, color_normalization=color_normalization)
 #dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_fn, num_workers=4)
 
 dataset_length = len(dataset)
 train_length = int(0.9 * dataset_length)
 valid_length = dataset_length - train_length
 
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, collate_fn=collate_fn, num_workers=4)
-valid_loader = DataLoader(valid_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn, num_workers=4)
-
 train_dataset, valid_dataset = random_split(dataset, [train_length, valid_length])
 
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn, num_workers=1)
+valid_loader = DataLoader(valid_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn, num_workers=1)
+
+
+
 # Initialize model, criterion and optimizer
-model = hist2RNA(base_model).to(device)
+model = hist2RNA(base_model, input_features = num_features, batch_size=BATCH_SIZE).to(device)
 criterion = nn.MSELoss()  
 optimizer = optim.Adam(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
 
@@ -255,9 +269,11 @@ for epoch in range(EPOCHS):
     model.train()
     running_loss = 0.0
 
-    # Training phase
-    for images, gene_expression in train_loader:
-        images, gene_expression = images.to(device), gene_expression.to(device)
+    # Training phase with progress bar
+    for images, gene_expression in tqdm(train_loader, desc=f"Training Epoch {epoch+1}/{EPOCHS}", leave=False):
+        images = tuple(batch.to(device) for batch in images)
+        gene_expression = tuple(tensor.to(device) for tensor in gene_expression)
+        gene_expression = torch.stack(gene_expression, dim=0)
 
         optimizer.zero_grad()
         outputs = model(images)
@@ -265,25 +281,39 @@ for epoch in range(EPOCHS):
         loss.backward()
         optimizer.step()
 
-        running_loss += loss.item() * images.size(0)
+        running_loss += loss.item() * len(images)
+
+        # Delete tensors to free up memory
+        del images, gene_expression, outputs
+
+    torch.cuda.empty_cache()
 
     train_loss = running_loss / len(train_loader.dataset)
     train_losses.append(train_loss)
-    print(f"Epoch [{epoch+1}/{EPOCHS}] Train Loss: {train_loss:.4f}")
+    print(f"\nEpoch [{epoch+1}/{EPOCHS}] Train Loss: {train_loss:.4f}")
 
     # Validation phase
     model.eval()
     running_val_loss = 0.0
-    with torch.no_grad():
-        for images, gene_expression in valid_loader:
-            images, gene_expression = images.to(device), gene_expression.to(device)
-            outputs = model(images)
-            loss = criterion(outputs, gene_expression)
-            running_val_loss += loss.item() * images.size(0)
+
+    # Validation phase with progress bar
+    for images, gene_expression in tqdm(valid_loader, desc=f"Validating Epoch {epoch+1}/{EPOCHS}", leave=False):
+        images = tuple(batch.to(device) for batch in images)
+        gene_expression = tuple(tensor.to(device) for tensor in gene_expression)
+        gene_expression = torch.stack(gene_expression, dim=0)
+        
+        outputs = model(images)
+        loss = criterion(outputs, gene_expression)
+        running_val_loss += loss.item() * len(images)
+
+        # Delete tensors to free up memory
+        del images, gene_expression, outputs
+
+    torch.cuda.empty_cache()
 
     val_loss = running_val_loss / len(valid_loader.dataset)
     val_losses.append(val_loss)
-    print(f"Epoch [{epoch+1}/{EPOCHS}] Validation Loss: {val_loss:.4f}")
+    print(f"\nEpoch [{epoch+1}/{EPOCHS}] Validation Loss: {val_loss:.4f}")
 
     # Early stopping check
     early_stopping(val_loss, model)
@@ -292,6 +322,9 @@ for epoch in range(EPOCHS):
         break
 
 print("Training complete.")
+
+
+
 
 # Plot training and validation loss curves
 plt.figure(figsize=(10, 6))
@@ -313,6 +346,7 @@ checkpoint = torch.load(CHECKPOINT_PATH)
 model.load_state_dict(checkpoint)
 
 
+
 test_dataset = PatientDataset(slides_dir, test_patient_ids, gene_expression_file, transform=transform, color_normalization=color_normalization)
 test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn, num_workers=4)
 
@@ -327,7 +361,10 @@ all_true_values = []
 # Make predictions on the test dataset
 with torch.no_grad():
     for images, gene_expression in test_dataloader:
-        images = images.to(device)
+        #images = images.to(device)
+        images = tuple(batch.to(device) for batch in images)
+        gene_expression = tuple(tensor.to(device) for tensor in gene_expression)
+        gene_expression = torch.stack(gene_expression, dim=0)
         outputs = model(images)
         all_predictions.append(outputs.cpu().numpy())
         all_true_values.append(gene_expression.cpu().numpy())
@@ -345,8 +382,8 @@ for i in range(all_predictions.shape[0]):
     spearman_coeffs_per_patient.append(coefficient)
     p_values_per_patient.append(p_value)
 
-print("Spearman correlation coefficients for each patient:", spearman_coeffs_per_patient)
-print("P-values for each patient:", p_values_per_patient)
+#print("Spearman correlation coefficients for each patient:", spearman_coeffs_per_patient)
+#print("P-values for each patient:", p_values_per_patient)
 
 spearman_coeffs_per_gene = []
 p_values_per_gene = []
@@ -357,8 +394,8 @@ for j in range(all_predictions.shape[1]):  # iterate through each gene
     spearman_coeffs_per_gene.append(coefficient)
     p_values_per_gene.append(p_value)
 
-print("Spearman correlation coefficients for each gene:", spearman_coeffs_per_gene)
-print("P-values for each gene:", p_values_per_gene)
+#print("Spearman correlation coefficients for each gene:", spearman_coeffs_per_gene)
+#print("P-values for each gene:", p_values_per_gene)
 
 
 # Training parameters and other details
@@ -371,34 +408,53 @@ details = {
 }
 
 
-# Saving data to CSV
-with open(FILENAME, mode='w', newline='') as file:
-    writer = csv.writer(file)
-    
-    # Writing training details
-    for key, value in details.items():
-        writer.writerow([key, value])
-    
-    # Add an empty line
-    writer.writerow([])
-    
-    # Writing Spearman coefficients for each patient
-    writer.writerow(["Spearman correlation coefficients for each patient"])
-    writer.writerows([[coeff] for coeff in spearman_coeffs_per_patient])
-    
-    # Writing p-values for each patient
-    writer.writerow([])
-    writer.writerow(["P-values for each patient"])
-    writer.writerows([[p_val] for p_val in p_values_per_patient])
-    
-    # Writing Spearman coefficients for each gene
-    writer.writerow([])
-    writer.writerow(["Spearman correlation coefficients for each gene"])
-    writer.writerows([[coeff] for coeff in spearman_coeffs_per_gene])
-    
-    # Writing p-values for each gene
-    writer.writerow([])
-    writer.writerow(["P-values for each gene"])
-    writer.writerows([[p_val] for p_val in p_values_per_gene])
 
+# Filename definitions
+FILENAME_PATIENT = "/scratch/nk53/rm8989/gene_prediction/code/hist2RNA/save_result/test_result_across_patient.csv"
+FILENAME_GENE = "/scratch/nk53/rm8989/gene_prediction/code/hist2RNA/save_result/test_result_across_gene.csv"
 
+def save_to_csv(filename, headers, data1, data2, details):
+    with open(filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        
+        # Writing training details
+        for key, value in details.items():
+            writer.writerow([key, value])
+        
+        # Add an empty line
+        writer.writerow([])
+        
+        # Headers
+        writer.writerow(headers)
+        
+        # Get the maximum number of rows to iterate over
+        max_rows = max(len(data1), len(data2))
+
+        for i in range(max_rows):
+            row = [
+                data1[i] if i < len(data1) else '',
+                data2[i] if i < len(data2) else ''
+            ]
+            writer.writerow(row)
+
+details = {
+    "LR": LR,
+    "WEIGHT_DECAY": WEIGHT_DECAY,
+    "EPOCHS": EPOCHS,
+    "BATCH_SIZE": BATCH_SIZE,
+    "Base Model Name": BASE_MODEL_NAME
+}
+
+# Save patient data
+save_to_csv(FILENAME_PATIENT, 
+            ["Spearman correlation coef across each patient", "P-values across each patient"],
+            spearman_coeffs_per_patient, 
+            p_values_per_patient,
+            details)
+
+# Save gene data
+save_to_csv(FILENAME_GENE, 
+            ["Spearman correlation coef across each gene", "P-values across each gene"],
+            spearman_coeffs_per_gene, 
+            p_values_per_gene,
+            details)
