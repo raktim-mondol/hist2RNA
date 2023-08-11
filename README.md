@@ -2,6 +2,7 @@
 
 ![hist2RNA banner](https://github.com/raktim-mondol/hist2RNA/blob/main/banner_hist2RNA_updated.png)
 
+
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
@@ -15,6 +16,7 @@
 ## Introduction
 
 **hist2RNA** is an efficient deep learning-based project that aims to predict gene expression from breast cancer histopathology images. This project employs a efficient architecture to unlock underlying genetic expression in breast cancer.
+
 
 ## Features
 
@@ -81,6 +83,8 @@ python predict.py --image_path ./data/sample.jpg --model_path ./models/hist2RNA_
 
 
 For detailed usage instructions, please refer to the [documentation](./DOCUMENTATION.md).
+## Notable Results using hist2RNA
+![Spearman Correlation Coefficient](https://github.com/raktim-mondol/hist2RNA/assets/28592095/7f4aa4e1-4048-4cf7-9bff-1f20ea711dba)
 
 ## Contributing
 
