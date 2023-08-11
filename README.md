@@ -83,7 +83,10 @@ python predict.py --image_path ./data/sample.jpg --model_path ./models/hist2RNA_
 
 
 For detailed usage instructions, please refer to the [documentation](./DOCUMENTATION.md).
-## Results using hist2RNA
+## Peak results utilizing the hist2RNA methodology:
+
+The following results show predictions for the PAM50 gene from histopathology images:
+
 ### Spearman Correlation Coefficient
 ![Spearman Correlation Coefficient](https://github.com/raktim-mondol/hist2RNA/assets/28592095/7f4aa4e1-4048-4cf7-9bff-1f20ea711dba)
 
