@@ -37,11 +37,6 @@ The following data sources have been used in this project:
 
 - Python 3.9+
 - Pytorch 2.0
-- NumPy
-- pandas
-- scikit-learn
-- OpenCV
-- Matplotlib
 
 ## Image preprocessing
 
