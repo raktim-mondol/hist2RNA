@@ -83,8 +83,13 @@ python predict.py --image_path ./data/sample.jpg --model_path ./models/hist2RNA_
 
 
 For detailed usage instructions, please refer to the [documentation](./DOCUMENTATION.md).
-## Notable Results using hist2RNA
+## Results using hist2RNA
+### Spearman Correlation Coefficient
 ![Spearman Correlation Coefficient](https://github.com/raktim-mondol/hist2RNA/assets/28592095/7f4aa4e1-4048-4cf7-9bff-1f20ea711dba)
+
+### AUC-RCH (A performance metric we've developed)
+![Reverse_cumulative_histogram](https://github.com/raktim-mondol/hist2RNA/assets/28592095/c35a99ea-429e-4bb5-a244-84a313a0a0a3)
+
 
 ## Contributing
 
