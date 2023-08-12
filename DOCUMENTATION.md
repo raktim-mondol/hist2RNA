@@ -19,13 +19,8 @@ Welcome to the hist2RNA documentation! This guide will walk you through the proc
 
 Before you begin, ensure that your system meets the following requirements:
 
-- Python 3.7+
-- TensorFlow 2.0+
-- NumPy
-- pandas
-- scikit-learn
-- OpenCV
-- Matplotlib
+- Python 3.9.2
+- Pytorch 2.0
 
 ## Installation
 
