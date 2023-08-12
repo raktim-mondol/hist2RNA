@@ -120,50 +120,67 @@ If you want to customize the hist2RNA model architecture, you can modify the `mo
 
 ### Data Augmentation
 
-To improve the performance of the model, you can apply data augmentation techniques. To do this, modify the `train.py` script to include data augmentation options when loading the training data. You can use the `ImageDataGenerator` class from Keras to easily apply various data augmentation techniques, such as rotation, zooming, and flipping. For example:
+To improve the performance of the model, you can apply data augmentation techniques. To do this, modify the `load_data.py` script to include data augmentation options when loading the training data. You can use the `ImageDataGenerator` class from Keras to easily apply various data augmentation techniques, such as rotation, zooming, and flipping. For example:
 
 ```python
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
 
 # Apply data augmentation
-datagen = ImageDataGenerator(
-    rotation_range=20,
-    zoom_range=0.15,
-    width_shift_range=0.2,
-    height_shift_range=0.2,
-    shear_range=0.15,
-    horizontal_flip=True,
-    fill_mode="nearest")
-
-# Load the training data with the applied augmentation
-train_data = datagen.flow_from_directory(train_data_path, ...)
+self.preprocess = transforms.Compose([
+    transforms.RandomRotation(20),          # rotation_range=20
+    transforms.RandomResizedCrop(224, scale=(0.85, 1.0), ratio=(0.75, 1.3333333333333333)),  # zoom_range=0.15 (approximation)
+    transforms.RandomHorizontalFlip(),      # horizontal_flip=True
+    transforms.RandomAffine(degrees=0, translate=(0.2, 0.2), shear=15),  # width_shift_range, height_shift_range, shear_range
+    self.color_norm,
+    self.model_transform,
+    # If you want normalization, add it here (e.g., transforms.Normalize(mean, std))
+])
 
 ```
 ### Transfer Learning
-To leverage the power of pre-trained models, you can use transfer learning. This approach involves using the weights from a pre-trained model as a starting point for training your model. Transfer learning can improve the performance of your model, especially when dealing with limited datasets. To implement transfer learning, modify the model.py file to include a pre-trained model (e.g., VGG16, ResNet50, etc.) as the base of your model architecture.
+To leverage the power of pre-trained models, you can use transfer learning. This approach involves using the weights from a pre-trained model as a starting point for training your model. Transfer learning can improve the performance of your model, especially when dealing with limited datasets. To implement transfer learning, modify the model.py file to include a pre-trained model (e.g., VGG16, ResNet50, ViT etc.) as the base of your model architecture.
 
 
 ### Monitoring Training Progress
-To monitor the training progress, you can use TensorBoard, a visualization tool provided by TensorFlow. To enable TensorBoard, add the following lines to the train.py script:
+PyTorch provides a utility called torch.utils.tensorboard to integrate with TensorBoard. Here's a step-by-step guide: To enable TensorBoard, add the following lines to the train.py script:
+pip install tensorboard
 
 ```python 
-from tensorflow.keras.callbacks import TensorBoard
+from torch.utils.tensorboard import SummaryWriter
 import datetime
 
-# Set up the TensorBoard callback
+# Set up the TensorBoard writer:
 log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-tensorboard_callback = TensorBoard(log_dir=log_dir, histogram_freq=1)
+writer = SummaryWriter(log_dir)
 
-# Add the TensorBoard callback when fitting the model
-model.fit(..., callbacks=[tensorboard_callback])
+#  Log scalars (like training loss, validation loss, etc.) during your training loop. For example, after each epoch:
+for epoch in range(num_epochs):
+    # Training code here...
+    train_loss = ...
+    writer.add_scalar('Train/Loss', train_loss, epoch)
+    
+    # Validation code here...
+    val_loss = ...
+    writer.add_scalar('Validation/Loss', val_loss, epoch)
+
 ```
 
-To visualize the training progress, run TensorBoard in your terminal:
+If you want to visualize more than just scalars, like model weights, gradients, or even images, you can do so with methods like add_histogram, add_image, etc. For example, to log model weights:
 
 ```python
-tensorboard --logdir logs/fit
+for name, param in model.named_parameters():
+    writer.add_histogram(name, param.clone().cpu().data.numpy(), epoch)
+
 ```
-Then, open your browser and navigate to the URL displayed in the terminal (usually http://localhost:6006/).
+Close the writer at the end of training
+writer.close()
+
+
+In your terminal or command prompt, navigate to the directory containing your script and run:
+```cmd
+tensorboard --logdir logs/fit
+
+```
 
 ### Fine-Tuning Hyperparameters
 To fine-tune the hyperparameters of your model, such as the learning rate, batch size, or number of epochs, you can modify the relevant arguments in the train.py script. Experimenting with different hyperparameters can help you optimize the performance of your model.
@@ -201,12 +218,10 @@ If you still encounter any issues while using hist2RNA, please refer to the READ
 
 Below are some key references and resources for the hist2RNA project:
 
-1. Original paper: Not Published Yet(#)
-2. TensorFlow: [https://www.tensorflow.org/](https://www.tensorflow.org/)
-3. Keras: [https://keras.io/](https://keras.io/)
-4. TCGA data portal: [https://portal.gdc.cancer.gov/](https://portal.gdc.cancer.gov/)
-5. cBioPortal: [http://www.cbioportal.org/](http://www.cbioportal.org/)
-6. Andrew Janowczyk's guide to downloading TCGA digital pathology images: [http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/](http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/)
+1. Pytorch: [https://www.tensorflow.org/](https://www.tensorflow.org/)](https://pytorch.org/)
+2. TCGA data portal: [https://portal.gdc.cancer.gov/](https://portal.gdc.cancer.gov/)
+3. cBioPortal: [http://www.cbioportal.org/](http://www.cbioportal.org/)
+4. Andrew Janowczyk's guide to downloading TCGA digital pathology images: [http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/](http://www.andrewjanowczyk.com/download-tcga-digital-pathology-images-ffpe/)
 
 
 
