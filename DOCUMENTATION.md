@@ -138,13 +138,14 @@ self.preprocess = transforms.Compose([
 
 ```
 ### Transfer Learning
-To leverage the power of pre-trained models, you can use transfer learning. This approach involves using the weights from a pre-trained model as a starting point for training your model. Transfer learning can improve the performance of your model, especially when dealing with limited datasets. To implement transfer learning, modify the model.py file to include a pre-trained model (e.g., VGG16, ResNet50, ViT etc.) as the base of your model architecture.
+To leverage the power of pre-trained models, you can use transfer learning. This approach involves using the weights from a pre-trained model as a starting point for training your model. Transfer learning can improve the performance of your model, especially when dealing with limited datasets. To implement transfer learning, modify the main.py or feature_extraction_step_1.py file to include a pre-trained model (e.g., VGG16, ResNet50, ViT etc.) as the base of your model architecture.
 
 
 ### Monitoring Training Progress
 PyTorch provides a utility called torch.utils.tensorboard to integrate with TensorBoard. Here's a step-by-step guide: To enable TensorBoard, add the following lines to the train.py script:
+```bash
 pip install tensorboard
-
+```
 ```python 
 from torch.utils.tensorboard import SummaryWriter
 import datetime
@@ -173,19 +174,18 @@ for name, param in model.named_parameters():
 
 ```
 Close the writer at the end of training
+```python
 writer.close()
-
+```
 
 In your terminal or command prompt, navigate to the directory containing your script and run:
-```cmd
+```bash
 tensorboard --logdir logs/fit
 
 ```
 
 ### Fine-Tuning Hyperparameters
-To fine-tune the hyperparameters of your model, such as the learning rate, batch size, or number of epochs, you can modify the relevant arguments in the train.py script. Experimenting with different hyperparameters can help you optimize the performance of your model.
-
-Add this section to the `DOCUMENTATION.md` file in the `./docs` folder. As before, remember to replace `yourusername` with your actual GitHub username and update the repository URL accordingly. Adjust file paths or other details depending on your project's structure as needed.
+To fine-tune the hyperparameters of your model, such as the learning rate, batch size, or number of epochs, you can modify the relevant arguments in the main.py script. Experimenting with different hyperparameters can help you optimize the performance of your model.
 
 ## Frequently Asked Questions (FAQs)
 
