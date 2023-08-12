@@ -75,7 +75,7 @@ patient_02,0.34,0.67,0.82,...,1.45
 patient_03,0.28,0.54,0.75,...,1.28
 ...
 ```
-The first row of the CSV file should contain the column names, with the first column being the `patient_id` and the subsequent columns being the gene expression values for each gene (`gene_1`, `gene_2`, ..., `gene_138`).
+The first row of the CSV file should contain the column names, with the first column being the `patient_id` and the subsequent columns being the gene expression values for each gene (`gene_1`, `gene_2`, ..., `gene_50`).
 
 Each subsequent row should contain the patient ID and the gene expression values for each of the 138 genes, separated by commas.
 
@@ -120,7 +120,7 @@ If you want to customize the hist2RNA model architecture, you can modify the `mo
 
 ### Data Augmentation
 
-To improve the performance of the model, you can apply data augmentation techniques. To do this, modify the `load_data.py` script to include data augmentation options when loading the training data. You can use the `ImageDataGenerator` class from Keras to easily apply various data augmentation techniques, such as rotation, zooming, and flipping. For example:
+To improve the performance of the model, you can apply data augmentation techniques. To do this, modify the `load_data.py` script to include data augmentation options when loading the training data. For example:
 
 ```python
 
