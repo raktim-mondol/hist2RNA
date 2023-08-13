@@ -106,7 +106,15 @@ python test_main.py --slides_dir ./data/slides/ --test_patient_id ./patient_deta
 This command will evaluate the model using the test data in the ./data/slides/ folder and the trained model saved in ./models/hist2RNA_model.pth. 
 
 ## Generate Figure
-`
+The following command will generate box plot and AUC-RCH curve. 
+Make sure that ```test_main.py``` generated result in the following directory. 
+```python
+FILENAME_ACROSS_GENE = './save_result/test_result_across_gene.csv'
+FILENAME_ACROSS_PATIENT = './save_result/test_result_across_patient.csv'
+```
+```bash
+python generate_box_plot.py
+```
 
 ## Advanced Usage
 
