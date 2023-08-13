@@ -76,7 +76,7 @@ python training_main.py --slides_dir ./data/slides/ --epochs 50 --batch_size 12 
 python test_main.py --test_patient_id ./patient_details/test_patient_id.txt --checkpoint_file ./models/hist2RNA_model.pth
 ```
 
-**For most efficient way use following code:**
+**For most efficient way, use following code:**
 ```python
 python feature_extraction_step_1.py
 ```
