@@ -69,10 +69,10 @@ The hist2RNA project requires gene expression data to be provided as labels for 
 
 The gene expression data should be organized in a CSV (Comma Separated Values) file with the following structure:
 ```bash
-patient_id,gene_1,gene_2,gene_3,...,gene_138
-patient_01,0.23,0.56,0.78,...,1.32
-patient_02,0.34,0.67,0.82,...,1.45
-patient_03,0.28,0.54,0.75,...,1.28
+patient_id,gene_1,gene_2,gene_3,...,gene_50
+patient_01, 0.23, 0.56, 0.78,..., 1.32
+patient_02, 0.34, 0.67, 0.82,..., 1.45
+patient_03, 0.28, 0.54, 0.75,..., 1.28
 ...
 ```
 The first row of the CSV file should contain the column names, with the first column being the `patient_id` and the subsequent columns being the gene expression values for each gene (`gene_1`, `gene_2`, ..., `gene_50`).
@@ -85,29 +85,22 @@ Ensure that your gene expression data is formatted according to this structure b
 
 ## Training the Model
 
-To train the hist2RNA model, use the `train.py` script as follows:
+To train the hist2RNA model, use the `training_main.py` script as follows:
 
 ```bash
-python train.py --train_data_path ./data/train --epochs 50 --batch_size 32
+python training_main.py --slides_dir ./data/slides/ --epochs 50 --batch_size 12 --lr 0.001
 ```
 
-This command will train the model using the training data in the ./data/train folder, with 50 epochs and a batch size of 32.
+This command will train the model using the training data in the ./data/slides/ folder, with 50 epochs and a batch size of 12 with learning rate 0.001
 
-## Evaluating the Model
-To evaluate the performance of the trained model, use the evaluate.py script:
+## Evaluate and Predicting Gene Expression
+To test the performance of the trained model, use the test_main.py script:
 
 ```bash 
-python evaluate.py --test_data_path ./data/test --model_path ./models/hist2RNA_model.h5
+python test_main.py --slides_dir ./data/slides/ --test_patient_id ./patient_details/test_patient_id.txt --checkpoint_file ./models/hist2RNA_model.pth
 ```
-This command will evaluate the model using the test data in the ./data/test folder and the trained model saved in ./models/hist2RNA_model.h5.
+This command will evaluate the model using the test data in the ./data/slides/ folder and the trained model saved in ./models/hist2RNA_model.pth. 
 
-## Predicting Gene Expression
-To predict gene expression from a single histopathology image, use the predict.py script:
-
-```bash 
-python predict.py --image_path ./data/sample.jpg --model_path ./models/hist2RNA_model.h5
-```
-This command will use the trained model saved in ./models/hist2RNA_model.h5 to predict gene expression for the image located at ./data/sample.jpg.
 
 
 ## Advanced Usage
