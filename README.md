@@ -80,7 +80,7 @@ python test_main.py --test_patient_id ./patient_details/test_patient_id.txt --ch
 ```python
 python feature_extraction_step_1.py
 ```
-***Then,**
+**Then,**
 ```python
 python model_training_step_2.py
 ```
