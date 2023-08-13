@@ -84,7 +84,11 @@ Ensure that your gene expression data is formatted according to this structure b
 
 
 ## Training the Model
-
+Make sure to keep `color_normalizer.py` and `data_load.py` in the same folder as training_main.py
+```python
+from color_normalizer import MacenkoColorNormalization
+from data_load import PatientDataset 
+```
 To train the hist2RNA model, use the `training_main.py` script as follows:
 
 ```bash
@@ -101,7 +105,8 @@ python test_main.py --slides_dir ./data/slides/ --test_patient_id ./patient_deta
 ```
 This command will evaluate the model using the test data in the ./data/slides/ folder and the trained model saved in ./models/hist2RNA_model.pth. 
 
-
+## Generate Figure
+`
 
 ## Advanced Usage
 
