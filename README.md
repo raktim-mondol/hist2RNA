@@ -68,18 +68,18 @@ The following data sources have been used in this project:
   
 1. Train the model:
 ```python
-python train.py --train_data_path ./data/train --epochs 50 --batch_size 32
+python training_main.py --slides_dir ./data/slides/ --epochs 50 --batch_size 12 --lr 0.001
 ```
 
 2. Evaluate the model:
 ```python
-python evaluate.py --test_data_path ./data/test --model_path ./models/hist2RNA_model.h5
+python test_main.py --test_patient_id ./patient_details/test_patient_id.txt --checkpoint_file ./models/hist2RNA_model.pth
 ```
 
-3. Predict gene expression from a single image:
+<>(3. Predict gene expression from a single image:
 ```python
 python predict.py --image_path ./data/sample.jpg --model_path ./models/hist2RNA_model.h5
-```
+```)
 
 
 For detailed usage instructions, please refer to the [documentation](./DOCUMENTATION.md).
