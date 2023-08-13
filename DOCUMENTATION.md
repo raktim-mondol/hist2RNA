@@ -98,7 +98,7 @@ python training_main.py --slides_dir ./data/slides/ --epochs 50 --batch_size 12 
 This command will train the model using the training data in the ./data/slides/ folder, with 50 epochs and a batch size of 12 with learning rate 0.001
 
 ## Evaluate and Predicting Gene Expression
-To test the performance of the trained model, use the test_main.py script:
+To test the performance of the trained model, use the ```test_main.py``` script:
 
 ```bash 
 python test_main.py --slides_dir ./data/slides/ --test_patient_id ./patient_details/test_patient_id.txt --checkpoint_file ./models/hist2RNA_model.pth
@@ -112,6 +112,7 @@ Make sure that ```test_main.py``` generated result in the following directory.
 FILENAME_ACROSS_GENE = './save_result/test_result_across_gene.csv'
 FILENAME_ACROSS_PATIENT = './save_result/test_result_across_patient.csv'
 ```
+Then RUN:
 ```bash
 python generate_box_plot.py
 ```
