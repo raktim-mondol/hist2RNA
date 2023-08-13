@@ -76,18 +76,13 @@ python training_main.py --slides_dir ./data/slides/ --epochs 50 --batch_size 12 
 python test_main.py --test_patient_id ./patient_details/test_patient_id.txt --checkpoint_file ./models/hist2RNA_model.pth
 ```
 
-<>(3. Predict gene expression from a single image:
-```python
-python predict.py --image_path ./data/sample.jpg --model_path ./models/hist2RNA_model.h5
-```)
-
 
 For detailed usage instructions, please refer to the [documentation](./DOCUMENTATION.md).
 ## Peak results utilizing the hist2RNA methodology:
 
 The following results show predictions for the PAM50 genes from histopathology test datatest images:
 
-### Spearman Correlation Coefficient
+### Spearman Correlation Coefficient **[Updated]**
 ![Spearman Correlation Coefficient](https://github.com/raktim-mondol/hist2RNA/assets/28592095/7f4aa4e1-4048-4cf7-9bff-1f20ea711dba)
 
 ### AUC-RCH (A performance metric we've developed)
