@@ -71,11 +71,19 @@ The following data sources have been used in this project:
 python training_main.py --slides_dir ./data/slides/ --epochs 50 --batch_size 12 --lr 0.001
 ```
 
-2. Evaluate the model:
+2. Test the model:
 ```python
 python test_main.py --test_patient_id ./patient_details/test_patient_id.txt --checkpoint_file ./models/hist2RNA_model.pth
 ```
 
+For most efficient way use:
+```python
+python feature_extraction_step_1.py
+```
+Then,
+```python
+python model_training_step_2.py
+```
 
 For detailed usage instructions, please refer to the [documentation](./DOCUMENTATION.md).
 ## Peak results utilizing the hist2RNA methodology:
