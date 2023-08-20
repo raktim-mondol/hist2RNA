@@ -47,8 +47,6 @@ def set_seeds(seed=0):
 #for reproducibility 
 set_seeds()
 
-
-
 # Hyperparameters
 
 LR = 0.0001
@@ -60,22 +58,22 @@ NUM_OF_GENES = 50
 # choose the base model 
 BASE_MODEL_NAME = "swin_b"  
 
-FEATURES_DIR = "./saved_feature_resnet50/"
+FEATURES_DIR = "./saved_features/resnet50/"
 
 # file_name and path 
-CHECKPOINT_PATH = './save_model/best_model.pt'
+CHECKPOINT_PATH = './saved_model/best_model.pt'
 
 #slides folder should contain folder of all patients (folder name: patient id) and each folder should contain multiple patches e.g. 1000 patches 
 # Path to extracted features
 
 
 
-gene_expression_file = './gene_expression_file/pam50_gene_expression.csv'
+gene_expression_file = './data/gene_expression/pam50_gene_expression.csv'
 
-train_data = pd.read_csv('./patient_details/train_patient_list.txt', index_col='patient_id')
+train_data = pd.read_csv('.data/patient_details/train_patient_list.txt', index_col='patient_id')
 train_patient_ids = train_data.index.astype(str).tolist()
 
-test_data = pd.read_csv('./patient_details/test_patient_list.txt', index_col='patient_id')
+test_data = pd.read_csv('.data/patient_details/test_patient_list.txt', index_col='patient_id')
 test_patient_ids = test_data.index.astype(str).tolist()
 
 
