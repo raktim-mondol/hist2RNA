@@ -1,5 +1,5 @@
 # Import Libraries
-from imports import *
+from libs import *
 
 
 class PatientDataset(Dataset):
