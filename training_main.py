@@ -373,7 +373,6 @@ def main(args):
 
 if __name__ == '__main__':
     
-    TMPDIR = os.environ["PBS_JOBFS"]
 
     parser = argparse.ArgumentParser(description='Training Script')
     
@@ -382,12 +381,12 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=100, help='Number of Epochs')
     parser.add_argument('--batch_size', type=int, default=6, help='Batch Size')
     parser.add_argument('--base_model_name', type=str, default="resnet50", help='Base Model Name')
-    parser.add_argument('--checkpoint_file', default='./save_model/best_model.pth', help='Path to save the model checkpoint in .pth')
-    parser.add_argument('--results_dir', default="./save_result/", help='Location for saving details and results')
-    parser.add_argument('--slides_dir', default=TMPDIR +"/raw_wsi_tcga_images/", help="Directory for slides")
-    parser.add_argument('--gene_expression_file', default="./gene_expression_file/pam50_gene_expression.csv", help="Path to the gene expression file in .csv")
-    parser.add_argument('--train_patient_id', default="./patient_details/train_patient_list.txt", help="Path to the patient id file in .txt")
-    #parser.add_argument('--test_patient_id', default="./patient_details/test_patient_list.txt", help="Path to the patient id file in .txt")
+    parser.add_argument('--checkpoint_file', default='./saved_model/best_model.pth', help='Path to save the model checkpoint in .pth')
+    parser.add_argument('--results_dir', default="./saved_result/", help='Location for saving details and results')
+    parser.add_argument('--slides_dir', default="./data/raw_wsi_tcga_images/", help="Directory for slides")
+    parser.add_argument('--gene_expression_file', default="./data/gene_expression_file/pam50_gene_expression.csv", help="Path to the gene expression file in .csv")
+    parser.add_argument('--train_patient_id', default="./data/patient_details/train_patient_list.txt", help="Path to the patient id file in .txt")
+    #parser.add_argument('--test_patient_id', default="./data/patient_details/test_patient_list.txt", help="Path to the patient id file in .txt")
 
     
     args = parser.parse_args()
