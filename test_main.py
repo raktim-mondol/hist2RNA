@@ -51,6 +51,7 @@ def set_seeds(seed=0):
 #for reproducibility 
 set_seeds()
 
+
 def get_base_model_and_transforms(model_name):
     if model_name == "resnet50":
         weights = ResNet50_Weights.DEFAULT
@@ -107,75 +108,12 @@ def collate_fn(batch):
     images, patient_id = zip(*batch)
     clipped_images = []
     for img in images:
-        if len(img) > 100:
-            img = img[:100]  # If more than 500 patches, clip it to 500
+        if len(img) > 1000:
+            img = img[:1000]  # If more than 1000 patches, clip it to 1000
         clipped_images.append(img)
     return clipped_images, patient_id
     
     
-
-class EarlyStopping:
-    def __init__(self, patience=5, verbose=False, delta=0, path='checkpoint.pth'):
-        """
-        Args:
-            patience (int): How long to wait after last time validation loss improved.
-            verbose (bool): If True, prints a message for each validation loss improvement.
-            delta (float): Minimum change in the monitored quantity to qualify as an improvement.
-            path (str): Path for the checkpoint to be saved to.
-        """
-        self.patience = patience
-        self.verbose = verbose
-        self.counter = 0
-        self.best_score = None
-        self.early_stop = False
-        self.val_loss_min = np.Inf
-        self.delta = delta
-        self.path = path
-
-    def __call__(self, val_loss, model):
-        score = -val_loss
-        if self.best_score is None:
-            self.best_score = score
-            self.save_checkpoint(val_loss, model)
-        elif score < self.best_score + self.delta:
-            self.counter += 1
-            print(f'EarlyStopping counter: {self.counter} out of {self.patience}')
-            if self.counter >= self.patience:
-                self.early_stop = True
-        else:
-            self.best_score = score
-            self.save_checkpoint(val_loss, model)
-            self.counter = 0
-
-    def save_checkpoint(self, val_loss, model):
-        '''Saves model when validation loss decrease.'''
-        if self.verbose:
-            print(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
-        torch.save(model.state_dict(), self.path)
-        self.val_loss_min = val_loss
-    
-
-#    def save_checkpoint(self, val_loss, model):
-#        '''Saves model when validation loss decrease.'''
-#        
-#        # Determine if the model is on multiple GPUs
-#        is_multi_gpu = isinstance(model, nn.DataParallel) 
-#        
-#        if self.verbose:
-#            print(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
-#        
-#        # If the model is on multiple GPUs, save the original model's state_dict
-#        if is_multi_gpu:
-#            print("Saving the model")
-#            torch.save(model.module.state_dict(), self.path)
-#        else:
-#            torch.save(model.state_dict(), self.path)
-#        
-#        self.val_loss_min = val_loss
-
-
-
-
 class hist2RNA(nn.Module):
     def __init__(self, base_model, input_features, batch_size):
         super(hist2RNA, self).__init__()
@@ -233,12 +171,39 @@ class hist2RNA(nn.Module):
         x = self.global_avg_pool(x).squeeze(-1)
         x = self.output(x)
         return x
+
+
+def save_to_csv(filename, headers, data1, data2, details):
+    with open(filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
         
+        # Writing training details
+        for key, value in details.items():
+            writer.writerow([key, value])
         
+        # Add an empty line
+        writer.writerow([])
         
+        # Headers
+        writer.writerow(headers)
+        
+        # Get the maximum number of rows to iterate over
+        max_rows = max(len(data1), len(data2))
+
+        for i in range(max_rows):
+            row = [
+                data1[i] if i < len(data1) else '',
+                data2[i] if i < len(data2) else ''
+            ]
+            writer.writerow(row)
+            
+            
+# Setup device
+
 def main(args):
     # Your existing code goes here, but replace hardcoded hyperparameters 
     # and other arguments with the values from `args`
+    
     LR = args.lr
     WEIGHT_DECAY = args.weight_decay
     EPOCHS = args.epochs
@@ -248,150 +213,149 @@ def main(args):
     RESULTS = args.results_dir
     slides_dir = args.slides_dir
     gene_expression_file = args.gene_expression_file
-
-    train_data = pd.read_csv(args.train_patient_id, index_col='patient_id')
-    train_patient_ids = train_data.index.astype(str).tolist()
-
-    #test_data = pd.read_csv(args.test_patient_id, index_col='patient_id')
-    #test_patient_ids = test_data.index.astype(str).tolist()
-
-
-    # Setup device
+    
+    test_data = pd.read_csv(args.test_patient_id, index_col='patient_id')
+    test_patient_ids = test_data.index.astype(str).tolist()
+    
+   
+    FILENAME_ACROSS_PATIENT = RESULTS + "test_result_across_patient.csv"
+    FILENAME_ACROSS_GENE = RESULTS + "test_result_across_gene.csv"
+   
+    
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
+    
     base_model, num_features, preprocess = get_base_model_and_transforms(BASE_MODEL_NAME)
+    
     
     color_normalization = MacenkoColorNormalization()
     transform = preprocess
     
     
-    dataset = PatientDataset(slides_dir, train_patient_ids, gene_expression_file, transform=transform, color_normalization=color_normalization)
-    #dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_fn, num_workers=4)
-    
-    dataset_length = len(dataset)
-    train_length = int(0.9 * dataset_length)
-    valid_length = dataset_length - train_length
-    
-    train_dataset, valid_dataset = random_split(dataset, [train_length, valid_length])
-    
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn, num_workers=4)
-    valid_loader = DataLoader(valid_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn, num_workers=4)
-    
+    test_dataset = PatientDataset(slides_dir, test_patient_ids, gene_expression_file, transform=transform, color_normalization=color_normalization)
+    test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn, num_workers=4)
     
     
     # Initialize model, criterion and optimizer
     model = hist2RNA(base_model, input_features = num_features, batch_size=BATCH_SIZE).to(device)
-   
+    
+    
+    # Load the saved model weights
+    checkpoint = torch.load(CHECKPOINT_PATH)
+    model.load_state_dict(checkpoint, strict=True)
+    
+    print("Model Loaded Successfully")
 #    if torch.cuda.device_count() > 1:
 #        print("Multiple GPU Detected")
 #        print(f"Using {torch.cuda.device_count()} GPUs")
 #        model = nn.DataParallel(model)
-            
     
-    criterion = nn.MSELoss()  
-    optimizer = optim.Adam(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
+    # Ensure model is in evaluation mode and on the correct device
     
+    model.eval()
     
-    # Define the early stopping mechanism
-    early_stopping = EarlyStopping(patience=5, verbose=True, path=CHECKPOINT_PATH)
+    all_predictions = []
+    all_true_values = []
     
-    
-    # Initialize lists to store the training and validation losses
-    train_losses = []
-    val_losses = []
-    
-    
-    # Training loop
-    for epoch in range(EPOCHS):
-        model.train()
-        running_loss = 0.0
-    
-        # Training phase with progress bar
-        for images, gene_expression in tqdm(train_loader, desc=f"Training Epoch {epoch+1}/{EPOCHS}", leave=False):
+    # Make predictions on the test dataset
+    with torch.no_grad():
+        for images, gene_expression in tqdm(test_dataloader, desc="Predicting"):
+            # images = images.to(device)
             images = tuple(batch.to(device) for batch in images)
             gene_expression = tuple(tensor.to(device) for tensor in gene_expression)
             gene_expression = torch.stack(gene_expression, dim=0)
-    
-            optimizer.zero_grad()
             outputs = model(images)
-            loss = criterion(outputs, gene_expression)
-            loss.backward()
-            optimizer.step()
+            all_predictions.append(outputs.cpu().numpy())
+            all_true_values.append(gene_expression.cpu().numpy())
+
     
-            running_loss += loss.item() * len(images)
-    
-            # Delete tensors to free up memory
-            del images, gene_expression, outputs
-    
-        torch.cuda.empty_cache()
-    
-        train_loss = running_loss / len(train_loader.dataset)
-        train_losses.append(train_loss)
-        print(f"\nEpoch [{epoch+1}/{EPOCHS}] Train Loss: {train_loss:.4f}")
-    
-        # Validation phase
-        model.eval()
-        running_val_loss = 0.0
-    
-        # Validation phase with progress bar
-        for images, gene_expression in tqdm(valid_loader, desc=f"Validating Epoch {epoch+1}/{EPOCHS}", leave=False):
-            images = tuple(batch.to(device) for batch in images)
-            gene_expression = tuple(tensor.to(device) for tensor in gene_expression)
-            gene_expression = torch.stack(gene_expression, dim=0)
-            
-            outputs = model(images)
-            loss = criterion(outputs, gene_expression)
-            running_val_loss += loss.item() * len(images)
-    
-            # Delete tensors to free up memory
-            del images, gene_expression, outputs
-    
-        torch.cuda.empty_cache()
-    
-        val_loss = running_val_loss / len(valid_loader.dataset)
-        val_losses.append(val_loss)
-        print(f"\nEpoch [{epoch+1}/{EPOCHS}] Validation Loss: {val_loss:.4f}")
-    
-        # Early stopping check
-        early_stopping(val_loss, model)
-        if early_stopping.early_stop:
-            print("Early stopping")
-            break
-    
-    print("Training complete.")
+    all_predictions = np.vstack(all_predictions)
+    all_true_values = np.vstack(all_true_values)
     
     
-    # Plot training and validation loss curves
-    plt.figure(figsize=(10, 6))
-    plt.plot(train_losses, label='Training Loss', color='blue')
-    plt.plot(val_losses, label='Validation Loss', color='red')
-    plt.title('Training and Validation Loss Curves')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.grid(True)
-    plt.savefig(RESULTS+'training_validation_loss_curve.png')
-    #plt.show()
+    # Get the gene names from the gene_expression_file for column headers
+    df_gene_expression = pd.read_csv(gene_expression_file)
+    gene_names = df_gene_expression.columns.tolist()
+    gene_names = gene_names[1:]
+    
+    # Save predicted and true gene expressions into a CSV file using pandas
+    df_predicted = pd.DataFrame(all_predictions, columns=gene_names, index=test_patient_ids)
+    df_true = pd.DataFrame(all_true_values, columns=gene_names, index=test_patient_ids)
+    
+    # Saving to CSV
+    df_predicted.to_csv(RESULTS+'predicted_gene_expressions.csv')
+    df_true.to_csv(RESULTS+'true_gene_expressions.csv')
+
+
+    # Note: The shape of all_predictions and all_true_values is (num_patients, 138)
+    
+    spearman_coeffs_per_patient = []
+    p_values_per_patient = []
+    # Compute the Spearman correlation coefficient for the entire gene set of each patient
+    for i in range(all_predictions.shape[0]):
+        coefficient, p_value = spearmanr(all_predictions[i], all_true_values[i])
+        spearman_coeffs_per_patient.append(coefficient)
+        p_values_per_patient.append(p_value)
+    
+    #print("Spearman correlation coefficients for each patient:", spearman_coeffs_per_patient)
+    #print("P-values for each patient:", p_values_per_patient)
+    
+    spearman_coeffs_per_gene = []
+    p_values_per_gene = []
+    
+    # Compute the Spearman correlation coefficient for each gene across all patients
+    for j in range(all_predictions.shape[1]):  # iterate through each gene
+        coefficient, p_value = spearmanr(all_predictions[:, j], all_true_values[:, j])
+        spearman_coeffs_per_gene.append(coefficient)
+        p_values_per_gene.append(p_value) 
+    
+    #print("Spearman correlation coefficients for each gene:", spearman_coeffs_per_gene)
+    #print("P-values for each gene:", p_values_per_gene)
+    
+    
+    # Training parameters and other details
+    
+    details = {
+        "LR": LR,
+        "WEIGHT_DECAY": WEIGHT_DECAY,
+        "EPOCHS": EPOCHS,
+        "BATCH_SIZE": BATCH_SIZE,
+        "Base Model Name": BASE_MODEL_NAME 
+    }
+    
+    # Save patient data
+    save_to_csv(FILENAME_ACROSS_PATIENT, 
+                ["Spearman correlation coef across each patient", "P-values across each patient"],
+                spearman_coeffs_per_patient, 
+                p_values_per_patient,
+                details)
+    
+    # Save gene data
+    save_to_csv(FILENAME_ACROSS_GENE, 
+                ["Spearman correlation coef across each gene", "P-values across each gene"],
+                spearman_coeffs_per_gene, 
+                p_values_per_gene,
+                details)
 
 
 if __name__ == '__main__':
     
-
     parser = argparse.ArgumentParser(description='Training Script')
+    
     
     parser.add_argument('--lr', type=float, default=0.001, help='Learning Rate')
     parser.add_argument('--weight_decay', type=float, default=0.01, help='Weight Decay')
     parser.add_argument('--epochs', type=int, default=100, help='Number of Epochs')
     parser.add_argument('--batch_size', type=int, default=6, help='Batch Size')
-    parser.add_argument('--base_model_name', type=str, default="resnet50", help='Base Model Name')
+    parser.add_argument('--base_model_name', type=str, default="resnet50", help='Base Model Name')   
     parser.add_argument('--checkpoint_file', default='./saved_model/best_model.pth', help='Path to save the model checkpoint in .pth')
     parser.add_argument('--results_dir', default="./saved_result/", help='Location for saving details and results')
-    parser.add_argument('--slides_dir', default="/data/raw_wsi_tcga_images/", help="Directory for slides")
+    parser.add_argument('--slides_dir', default="./data/raw_wsi_tcga_images/", help="Directory for slides")
     parser.add_argument('--gene_expression_file', default="./data/gene_expression_file/pam50_gene_expression.csv", help="Path to the gene expression file in .csv")
-    parser.add_argument('--train_patient_id', default="./data/patient_details/train_patient_list.txt", help="Path to the patient id file in .txt")
-    #parser.add_argument('--test_patient_id', default="./data/patient_details/test_patient_list.txt", help="Path to the patient id file in .txt")
+    parser.add_argument('--test_patient_id', default="./data/patient_details/test_patient_list.txt", help="Path to the patient id file in .txt")
 
     
     args = parser.parse_args()
     
     main(args)
+    
