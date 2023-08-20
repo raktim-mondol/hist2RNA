@@ -94,10 +94,10 @@ BASE_MODEL_NAME = "vit_l_32"  # or other models
 
 # Path to slides
 
-slides_dir = "/slide_dir/raw_wsi_tcga_images/"
+slides_dir = "/data/raw_wsi_tcga_images/"
 
 # Define patients or load patient ids
-patient_list = pd.read_csv('./patient_details/all_patient_list.txt', index_col='all_patient_id')
+patient_list = pd.read_csv('./data/patient_details/all_patient_list.txt', index_col='all_patient_id')
 patient_ids = patient_list.index.astype(str).tolist()
 
 # Define the base model and transformation
@@ -204,23 +204,3 @@ if __name__ == "__main__":
                 aggregated_feature=aggregated_feature.unsqueeze(0)
                 torch.save(aggregated_feature, f"{FEATURE_SAVE_PATH}{pid}.pt")
                 print(f"Saved features for patient {pid}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
