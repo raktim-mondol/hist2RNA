@@ -78,11 +78,11 @@ python test_main.py --test_patient_id ./patient_details/test_patient_id.txt --ch
 
 **For most efficient way, use following code:**
 ```python
-python feature_extraction_step_1.py
+python step_1_feature_extraction.py
 ```
 **Then,**
 ```python
-python model_training_step_2.py
+python step_2_model_training_.py
 ```
 
 For detailed usage instructions, please refer to the [documentation](./DOCUMENTATION.md).
