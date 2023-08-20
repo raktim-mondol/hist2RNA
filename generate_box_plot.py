@@ -10,10 +10,10 @@ import numpy as np
 from sklearn.metrics import auc
 
 # Need to load the saved result [generated after training]
-FILENAME_ACROSS_GENE = './save_result/test_result_across_gene.csv'
-FILENAME_ACROSS_PATIENT = './save_result/test_result_across_patient.csv'
+FILENAME_ACROSS_GENE = './saved_results/test_result_across_gene.csv'
+FILENAME_ACROSS_PATIENT = './saved_results/test_result_across_patient.csv'
 
-save_directory = "./save_figure/"
+save_directory = "./saved_results/figures/"
 
 # Load the initial rows of the CSV to extract the model parameters
 parameters_df = pd.read_csv(FILENAME_ACROSS_GENE, nrows=4, header=None, names=['Parameter', 'Value'])
