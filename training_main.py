@@ -104,8 +104,8 @@ def collate_fn(batch):
     images, patient_id = zip(*batch)
     clipped_images = []
     for img in images:
-        if len(img) > 100:
-            img = img[:100]  # If more than 500 patches, clip it to 500
+        if len(img) > 1000:
+            img = img[:1000]  # If more than 1000 patches, clip it to 1000
         clipped_images.append(img)
     return clipped_images, patient_id
     
