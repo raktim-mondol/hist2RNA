@@ -87,10 +87,10 @@ class PatientDataset(Dataset):
 BATCH_SIZE = 1
 
 # Save directory for extracted features
-FEATURE_SAVE_PATH = "./saved_feature_vit_l_32/"
+FEATURE_SAVE_PATH = "./saved_features/resnet50/"
 
 # Hyperparameters
-BASE_MODEL_NAME = "vit_l_32"  # or other models
+BASE_MODEL_NAME = "resnet50"  # or other models
 
 # Path to slides
 
@@ -177,8 +177,7 @@ color_normalization = MacenkoColorNormalization()
 
 dataset = PatientDataset(slides_dir, patient_ids, transform=preprocess, color_normalization=color_normalization)
 
-train_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn)
-
+data_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn)
 
 
 # Main code to extract features
@@ -191,7 +190,7 @@ if __name__ == "__main__":
         base_model = nn.DataParallel(base_model)
     base_model.to(device)
     with torch.no_grad():
-        for images, patient_id in train_loader:
+        for images, patient_id in data_loader:
             #print(images)
             images = tuple(batch.to(device) for batch in images)
             for i, patient_images in enumerate(images):
