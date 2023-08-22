@@ -36,9 +36,7 @@ To set up a development environment for hist2RNA, follow the installation instru
 
 ## Testing
 
-Before submitting a pull request, please ensure that your changes pass all tests. You can run the test suite using the following command:
-```python -m unittest discover tests```
-
+Before submitting a pull request, please ensure that your changes pass all tests. 
 
 If you add new features or modify existing ones, please update or add new tests as needed.
 
