@@ -43,8 +43,6 @@ test_patient_ids = test_data.index.astype(str).tolist()
 
 
 
-# Your hist2RNA model, EarlyStopping class and other definitions
-
 # Function to load features for a patient
 class PatientDatasetWithFeatures(Dataset):
     def __init__(self, features_dir, patient_ids, gene_expression_file):
