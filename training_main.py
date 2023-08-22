@@ -198,8 +198,6 @@ class hist2RNA(nn.Module):
         
         
 def main(args):
-    # Your existing code goes here, but replace hardcoded hyperparameters 
-    # and other arguments with the values from `args`
     LR = args.lr
     WEIGHT_DECAY = args.weight_decay
     EPOCHS = args.epochs
