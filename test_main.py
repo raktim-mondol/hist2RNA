@@ -163,8 +163,6 @@ def save_to_csv(filename, headers, data1, data2, details):
 # Setup device
 
 def main(args):
-    # Your existing code goes here, but replace hardcoded hyperparameters 
-    # and other arguments with the values from `args`
     
     LR = args.lr
     WEIGHT_DECAY = args.weight_decay
