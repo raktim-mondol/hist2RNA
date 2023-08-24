@@ -15,10 +15,9 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import torchvision.transforms as transforms
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, random_split
 from torch.utils.tensorboard import SummaryWriter
 from sklearn.manifold import TSNE
-from torch.utils.data import random_split
 from sklearn.preprocessing import StandardScaler
 from color_normalizer import MacenkoColorNormalization
 from data_load import PatientDataset 
