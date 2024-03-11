@@ -99,7 +99,7 @@ The following results show predictions for the PAM50 genes from histopathology t
 ### Gene prediction across patients:
 ## It leverages the overall patterns of gene expression for each patient. This allows for a more holistic understanding of gene behavior across the population.
 
-### Gene prediction across 138 genes:
+### Gene prediction across genes:
 ## This analysis focuses on the expression patterns of each gene individually. This reveals the significant variability in gene expression among different patients, which can lead to lower correlation coefficients.
 
 ## Contributing
