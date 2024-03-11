@@ -96,6 +96,11 @@ The following results show predictions for the PAM50 genes from histopathology t
 ### AUC-RCH (A performance metric we've developed)
 ![Reverse_cumulative_histogram](https://github.com/raktim-mondol/hist2RNA/assets/28592095/c35a99ea-429e-4bb5-a244-84a313a0a0a3)
 
+### Gene prediction across patients:
+## It leverages the overall patterns of gene expression among all patients, capturing shared general trends in gene expression. This method allows for a more holistic understanding of gene behavior across a patient population.
+
+### Gene prediction across 138 genes:
+## This analysis focuses on the expression patterns of each gene individually. This method reveals the significant variability in gene expression among different patients, which can lead to lower correlation coefficients due to the unique expression profiles of each gene.
 
 ## Contributing
 
