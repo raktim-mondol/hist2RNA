@@ -12,6 +12,8 @@
 - [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
+  
+ [DeepWiki Documentation](https://deepwiki.com/raktim-mondol/hist2RNA)
 
 ## Introduction
 
