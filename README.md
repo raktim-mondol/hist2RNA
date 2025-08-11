@@ -49,7 +49,7 @@ The following data sources have been used in this project:
 
 ### Image Color Normalization
 
-- Python implementation: [Normalizing H&E Images](https://github.com/bnsreenu/python_for_microscopists/blob/master/122_normalizing_HnE_images.py)
+- Python implementation: [Normalizing H&E Images](https://github.com/bnsreenu/python_for_microscopists/blob/master/122_normalizing_HnE_images.py) or [TorchStain](https://github.com/raktim-mondol/torchstain/tree/main)
 
 - Actual Matlab implementation: [Staining Normalization](https://github.com/mitkovetta/staining-normalization/blob/master/normalizeStaining.m)
 
