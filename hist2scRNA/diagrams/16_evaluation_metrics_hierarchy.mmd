@@ -1,0 +1,105 @@
+graph TB
+    subgraph Evaluation["Model Evaluation Framework"]
+        Input["Trained Model + Test Data<br/>(n_spots × n_genes)"]
+
+        Input --> Predict["Run Inference<br/>Get Predictions"]
+
+        Predict --> Cat1["1. Overall Metrics"]
+        Predict --> Cat2["2. Gene-wise Metrics"]
+        Predict --> Cat3["3. Spot-wise Metrics"]
+        Predict --> Cat4["4. Zero-Inflation Metrics"]
+        Predict --> Cat5["5. Cell Type Metrics"]
+        Predict --> Cat6["6. Expression Level Analysis"]
+    end
+
+    subgraph Overall["1. Overall Regression Metrics<br/>(Global Performance)"]
+        Cat1 --> MSE["MSE/RMSE/MAE<br/>Error magnitude"]
+        Cat1 --> R2["R² Score<br/>Variance explained<br/>Range: 0-1, higher better"]
+        Cat1 --> PearsonOverall["Pearson r<br/>Linear correlation<br/>Range: -1 to 1"]
+        Cat1 --> SpearmanOverall["Spearman ρ<br/>Rank correlation<br/>Robust to outliers"]
+    end
+
+    subgraph GeneWise["2. Gene-wise Metrics<br/>(Per-gene across spots)"]
+        Cat2 --> GeneCorr["Per-gene Pearson/Spearman<br/>Correlation across spots"]
+        Cat2 --> GeneMeanCorr["Mean/Median correlation<br/>across all genes"]
+        Cat2 --> GeneStats["Gene expression stats<br/>Mean, Std, True vs Pred"]
+
+        GeneCorr --> GeneInterpret["Interpretation:<br/>Are specific genes<br/>predicted well?<br/>(e.g., cancer markers)"]
+    end
+
+    subgraph SpotWise["3. Spot-wise Metrics<br/>(Per-spot across genes)"]
+        Cat3 --> SpotCorr["Per-spot Pearson/Spearman<br/>Correlation across genes"]
+        Cat3 --> SpotMeanCorr["Mean/Median correlation<br/>across all spots"]
+
+        SpotCorr --> SpotInterpret["Interpretation:<br/>Is full expression profile<br/>correct at each location?<br/>(Spatial accuracy)"]
+    end
+
+    subgraph ZeroInflation["4. Zero-Inflation Metrics<br/>(Critical for scRNA-seq)"]
+        Cat4 --> ZeroRate["Zero rate<br/>True: 70-90%<br/>Pred: should match"]
+        Cat4 --> ZeroDetect["Zero detection accuracy<br/>Binary classification:<br/>zero vs non-zero"]
+        Cat4 --> Sensitivity["Sensitivity (TPR)<br/>Detecting non-zeros<br/>TP / (TP + FN)"]
+        Cat4 --> Specificity["Specificity (TNR)<br/>Detecting zeros<br/>TN / (TN + FP)"]
+        Cat4 --> F1["F1 Score<br/>Harmonic mean of<br/>precision & recall"]
+        Cat4 --> MAENonZero["MAE (non-zero only)<br/>Error excluding dropouts"]
+
+        ZeroRate --> ZeroInterpret["Interpretation:<br/>Does model capture<br/>sparsity correctly?<br/>(Biological realism)"]
+    end
+
+    subgraph CellType["5. Cell Type Classification<br/>(Multi-task learning)"]
+        Cat5 --> CTAccuracy["Accuracy<br/>Overall classification<br/>correct / total"]
+        Cat5 --> CTF1["F1 Scores<br/>Macro & Weighted<br/>Per-class performance"]
+        Cat5 --> CTConfusion["Confusion Matrix<br/>Per-class errors<br/>& misclassifications"]
+        Cat5 --> CTReport["Classification Report<br/>Precision, Recall, F1<br/>for each cell type"]
+
+        CTConfusion --> CTInterpret["Interpretation:<br/>Which cell types<br/>are confused?<br/>(e.g., immune subtypes)"]
+    end
+
+    subgraph ExprLevel["6. Expression Level Analysis<br/>(Stratified performance)"]
+        Cat6 --> Bin1["Low (0-1)<br/>Near-zero expression"]
+        Cat6 --> Bin2["Medium-Low (1-5)<br/>Lowly expressed genes"]
+        Cat6 --> Bin3["Medium (5-10)<br/>Moderate expression"]
+        Cat6 --> Bin4["Medium-High (10-50)<br/>Highly expressed"]
+        Cat6 --> Bin5["High (50+)<br/>Very high expression"]
+
+        Bin1 --> LevelMetrics["MAE, Pearson r<br/>for each bin"]
+        Bin2 --> LevelMetrics
+        Bin3 --> LevelMetrics
+        Bin4 --> LevelMetrics
+        Bin5 --> LevelMetrics
+
+        LevelMetrics --> LevelInterpret["Interpretation:<br/>Model bias towards<br/>high-expression genes?"]
+    end
+
+    subgraph Output["Outputs"]
+        MSE --> Results["evaluation_results.json<br/>All metrics in JSON"]
+        R2 --> Results
+        PearsonOverall --> Results
+        SpearmanOverall --> Results
+        GeneMeanCorr --> Results
+        SpotMeanCorr --> Results
+        ZeroRate --> Results
+        CTAccuracy --> Results
+        LevelMetrics --> Results
+
+        Results --> Plots["Visualizations<br/>5 plot types"]
+
+        Plots --> Plot1["1. Scatter plot<br/>True vs Pred"]
+        Plots --> Plot2["2. Gene correlation<br/>distribution"]
+        Plots --> Plot3["3. Zero-inflation<br/>analysis"]
+        Plots --> Plot4["4. Expression levels<br/>performance"]
+        Plots --> Plot5["5. Cell type<br/>confusion matrix"]
+    end
+
+    style Evaluation fill:#e1f5ff
+    style Overall fill:#fff4e6
+    style GeneWise fill:#e8f5e9
+    style SpotWise fill:#f3e5f5
+    style ZeroInflation fill:#ffebee
+    style CellType fill:#e0f2f1
+    style ExprLevel fill:#fce4ec
+    style Output fill:#f1f8e9
+    style GeneInterpret fill:#c8e6c9
+    style SpotInterpret fill:#e1bee7
+    style ZeroInterpret fill:#ffcdd2
+    style CTInterpret fill:#b2dfdb
+    style LevelInterpret fill:#f8bbd0

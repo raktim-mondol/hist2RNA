@@ -72,6 +72,32 @@ This folder contains Mermaid diagrams that visualize the hist2scRNA model archit
     - Scale factor application and manual registration
     - Alignment validation and troubleshooting
 
+### Evaluation & Performance Metrics
+
+16. **[Evaluation Metrics Hierarchy](./16_evaluation_metrics_hierarchy.mmd)** 📊
+    - Complete 6-category evaluation framework
+    - Overall, gene-wise, spot-wise, zero-inflation, cell type, expression level metrics
+    - Interpretation guidelines for each metric type
+    - Automatic visualization outputs
+
+17. **[Evaluation Process Flow](./17_evaluation_process_flow.mmd)** 🔄
+    - Step-by-step evaluation pipeline
+    - Inference loop without gradients
+    - Sequential metrics computation (6 categories)
+    - JSON export and plot generation
+
+18. **[Metrics Interpretation Guide](./18_metrics_interpretation_guide.mmd)** 📖
+    - Research questions → Metrics mapping
+    - Performance benchmarks (Excellent/Good/Fair/Poor)
+    - Interpretation → Actions for improvement
+    - Trade-off analysis (e.g., sensitivity vs specificity)
+
+19. **[Metrics to Model Components](./19_metrics_to_model_components.mmd)** 🔍
+    - Maps metrics to specific model components for debugging
+    - Component diagnostics (ViT, GAT, Decoder, ZINB heads)
+    - Diagnostic workflow decision tree
+    - Troubleshooting based on metric patterns
+
 ### Advanced Concepts
 
 9. **[Multi-Task Learning](./09_multitask_learning.mmd)** 🎯

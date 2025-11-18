@@ -1,0 +1,96 @@
+graph TB
+    subgraph Question["Research Questions → Metrics"]
+        Q1["Q1: How accurate is<br/>gene expression prediction?"] --> M1Group
+        Q2["Q2: Are specific genes<br/>predicted well?<br/>(e.g., cancer markers)"] --> M2Group
+        Q3["Q3: Is spatial accuracy good?<br/>(Full profile at each location)"] --> M3Group
+        Q4["Q4: Does model capture<br/>single-cell sparsity?"] --> M4Group
+        Q5["Q5: Can model identify<br/>cell types?"] --> M5Group
+        Q6["Q6: Model bias towards<br/>high-expression genes?"] --> M6Group
+    end
+
+    subgraph M1Group["Use: Overall Metrics"]
+        M1A["Pearson r > 0.8<br/>✓ Good linear relationship"]
+        M1B["R² > 0.7<br/>✓ Explains 70%+ variance"]
+        M1C["MAE < 2.0<br/>✓ Low average error<br/>(depends on expression scale)"]
+        M1D["RMSE penalizes outliers<br/>Compare with MAE:<br/>RMSE >> MAE = large outliers"]
+    end
+
+    subgraph M2Group["Use: Gene-wise Metrics"]
+        M2A["Mean Pearson r > 0.7<br/>✓ Most genes predicted well"]
+        M2B["Check per_gene_metrics<br/>Find poorly predicted genes:<br/>Pearson r < 0.5"]
+        M2C["Low correlation genes:<br/>- Low expression?<br/>- High variability?<br/>- Biological noise?"]
+        M2D["High correlation genes:<br/>✓ Robust biomarkers<br/>✓ Spatially patterned"]
+    end
+
+    subgraph M3Group["Use: Spot-wise Metrics"]
+        M3A["Mean Pearson r > 0.7<br/>✓ Full profiles accurate"]
+        M3B["Low spot correlation:<br/>May indicate:<br/>- Image quality issues<br/>- Spatial edge effects<br/>- Tissue heterogeneity"]
+        M3C["High spot correlation:<br/>✓ Good spatial localization<br/>✓ Tissue context captured"]
+    end
+
+    subgraph M4Group["Use: Zero-Inflation Metrics"]
+        M4A["Zero rate difference < 0.1<br/>✓ Captures sparsity well<br/>True: 0.70-0.90<br/>Pred: should match"]
+        M4B["Sensitivity (TPR) > 0.85<br/>✓ Detects non-zeros well<br/>Important: avoid false negatives"]
+        M4C["Specificity (TNR) > 0.70<br/>✓ Detects zeros well<br/>Important: biological realism"]
+        M4D["F1 Score > 0.7<br/>✓ Balanced precision & recall<br/>for zero detection"]
+        M4E["Trade-off:<br/>High Sensitivity + Low Specificity<br/>→ Over-predicting expression<br/>High Specificity + Low Sensitivity<br/>→ Over-predicting zeros"]
+    end
+
+    subgraph M5Group["Use: Cell Type Metrics"]
+        M5A["Accuracy > 0.7<br/>✓ Good overall classification"]
+        M5B["F1 Macro > 0.6<br/>✓ Balanced across cell types<br/>(Important if imbalanced)"]
+        M5C["Confusion Matrix:<br/>Which cell types confused?<br/>- Similar morphology?<br/>- Shared markers?"]
+        M5D["Per-class F1:<br/>Identify poorly classified<br/>cell types → Need more data?<br/>Better features?"]
+    end
+
+    subgraph M6Group["Use: Expression Level Analysis"]
+        M6A["Low expression (0-1):<br/>Higher MAE expected<br/>Harder to predict<br/>More dropout"]
+        M6B["High expression (50+):<br/>Should have high correlation<br/>Low MAE"]
+        M6C["Decreasing correlation<br/>with expression level?<br/>→ Model biased towards<br/>high-expression genes"]
+        M6D["Uniform MAE across levels?<br/>✓ Robust model<br/>No systematic bias"]
+    end
+
+    subgraph Benchmarks["Performance Benchmarks"]
+        Excellent["Excellent Performance<br/>━━━━━━━━━━━━━━━<br/>Overall Pearson r > 0.85<br/>Gene-wise mean r > 0.75<br/>Spot-wise mean r > 0.75<br/>Zero rate diff < 0.05<br/>Sensitivity > 0.90<br/>Cell type accuracy > 0.80"]
+
+        Good["Good Performance<br/>━━━━━━━━━━━━━━━<br/>Overall Pearson r: 0.70-0.85<br/>Gene-wise mean r: 0.60-0.75<br/>Spot-wise mean r: 0.60-0.75<br/>Zero rate diff: 0.05-0.15<br/>Sensitivity: 0.80-0.90<br/>Cell type accuracy: 0.70-0.80"]
+
+        Fair["Fair Performance<br/>━━━━━━━━━━━━━━━<br/>Overall Pearson r: 0.50-0.70<br/>Gene-wise mean r: 0.40-0.60<br/>Spot-wise mean r: 0.40-0.60<br/>Zero rate diff: 0.15-0.25<br/>Sensitivity: 0.70-0.80<br/>Cell type accuracy: 0.60-0.70"]
+
+        Poor["Poor Performance<br/>━━━━━━━━━━━━━━━<br/>Overall Pearson r < 0.50<br/>Gene-wise mean r < 0.40<br/>Spot-wise mean r < 0.40<br/>Zero rate diff > 0.25<br/>Sensitivity < 0.70<br/>Cell type accuracy < 0.60<br/>⚠️ Model needs improvement"]
+    end
+
+    subgraph Actions["Interpretation → Actions"]
+        Action1["Low Overall Metrics<br/>━━━━━━━━━━━━━━━<br/>Actions:<br/>- Train longer (more epochs)<br/>- Increase model capacity<br/>- Check data quality<br/>- Add data augmentation"]
+
+        Action2["Low Gene-wise Metrics<br/>━━━━━━━━━━━━━━━<br/>Actions:<br/>- Gene selection (focus on HVGs)<br/>- Check gene-specific patterns<br/>- Add gene-level features<br/>- Increase n_genes in training"]
+
+        Action3["Low Spot-wise Metrics<br/>━━━━━━━━━━━━━━━<br/>Actions:<br/>- Improve spatial graph (k-NN)<br/>- Enhance GNN layers<br/>- Check image alignment<br/>- Add spatial augmentation"]
+
+        Action4["Poor Zero-Inflation<br/>━━━━━━━━━━━━━━━<br/>Actions:<br/>- Tune ZINB loss weight<br/>- Adjust pi (dropout) prediction<br/>- Balance zero/non-zero samples<br/>- Check theta (dispersion)"]
+
+        Action5["Low Cell Type Accuracy<br/>━━━━━━━━━━━━━━━<br/>Actions:<br/>- Increase alpha (CE weight)<br/>- Add more cell type labels<br/>- Use class weights (if imbalanced)<br/>- Enhance feature extraction"]
+
+        Action6["Expression Level Bias<br/>━━━━━━━━━━━━━━━<br/>Actions:<br/>- Normalize expression values<br/>- Use log-transform<br/>- Weighted loss by expression<br/>- Stratified sampling"]
+    end
+
+    M1C --> Action1
+    M2B --> Action2
+    M3B --> Action3
+    M4A --> Action4
+    M5A --> Action5
+    M6C --> Action6
+
+    style Question fill:#e1f5ff
+    style M1Group fill:#fff4e6
+    style M2Group fill:#e8f5e9
+    style M3Group fill:#f3e5f5
+    style M4Group fill:#ffebee
+    style M5Group fill:#e0f2f1
+    style M6Group fill:#fce4ec
+    style Benchmarks fill:#f1f8e9
+    style Excellent fill:#c8e6c9
+    style Good fill:#dcedc8
+    style Fair fill:#fff9c4
+    style Poor fill:#ffcdd2
+    style Actions fill:#e0e0e0

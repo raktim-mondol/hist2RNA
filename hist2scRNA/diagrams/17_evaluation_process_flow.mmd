@@ -1,0 +1,88 @@
+flowchart TD
+    Start["Start Evaluation"] --> LoadModel["Load Trained Model<br/>model.eval()"]
+
+    LoadModel --> LoadData["Load Test Dataset<br/>- Images (n_spots × 3 × 224 × 224)<br/>- True expressions (n_spots × n_genes)<br/>- Cell types (n_spots)<br/>- Spatial graph edges"]
+
+    LoadData --> CreateEvaluator["Create scRNAEvaluator<br/>evaluator = scRNAEvaluator(save_dir)"]
+
+    CreateEvaluator --> Inference["Run Model Inference"]
+
+    subgraph InferenceLoop["Inference Loop (No Gradient)"]
+        Inference --> Batch["For each batch in test_dataloader"]
+        Batch --> Forward["Forward pass:<br/>output = model(images, edge_index)"]
+        Forward --> Extract["Extract predictions:<br/>- mu (mean expression)<br/>- theta (dispersion)<br/>- pi (zero-inflation)<br/>- cell_type_logits"]
+        Extract --> Collect["Collect predictions<br/>& ground truth"]
+        Collect --> NextBatch{More batches?}
+        NextBatch -->|Yes| Batch
+        NextBatch -->|No| Concat
+    end
+
+    Concat["Concatenate all batches<br/>- y_pred: (n_spots, n_genes)<br/>- y_true: (n_spots, n_genes)<br/>- cell_type_pred: (n_spots, n_classes)<br/>- cell_type_true: (n_spots)"]
+
+    Concat --> Compute["Compute All Metrics"]
+
+    subgraph MetricsComputation["Metrics Computation Pipeline"]
+        Compute --> Step1["1. Overall Metrics<br/>Flatten all values<br/>Compute MSE, MAE, R², correlations"]
+
+        Step1 --> Step2["2. Gene-wise Metrics<br/>For each gene:<br/>  - Compute correlation across spots<br/>  - Compute MSE, MAE<br/>Aggregate: mean/median correlations"]
+
+        Step2 --> Step3["3. Spot-wise Metrics<br/>For each spot:<br/>  - Compute correlation across genes<br/>Aggregate: mean/median correlations"]
+
+        Step3 --> Step4["4. Zero-Inflation Metrics<br/>Convert to binary (zero vs non-zero)<br/>Compute:<br/>  - Zero rates (true vs pred)<br/>  - Confusion matrix (TP, TN, FP, FN)<br/>  - Sensitivity, Specificity, F1<br/>  - MAE for non-zero values only"]
+
+        Step4 --> Step5["5. Cell Type Metrics<br/>Convert logits to labels<br/>Compute:<br/>  - Accuracy<br/>  - F1 scores (macro, weighted)<br/>  - Confusion matrix<br/>  - Classification report"]
+
+        Step5 --> Step6["6. Expression Level Analysis<br/>Define bins: 0-1, 1-5, 5-10, 10-50, 50+<br/>For each bin:<br/>  - Mask values in range<br/>  - Compute MAE, Pearson r"]
+    end
+
+    Step6 --> SaveJSON["Save Results to JSON<br/>evaluation_results.json"]
+
+    SaveJSON --> GenPlots["Generate Visualizations"]
+
+    subgraph Visualization["Visualization Generation"]
+        GenPlots --> PlotA["Plot 1: Overall Scatter<br/>True vs Predicted<br/>(subsample 10K points)"]
+        PlotA --> PlotB["Plot 2: Gene-wise Correlations<br/>Histogram of per-gene Pearson/Spearman"]
+        PlotB --> PlotC["Plot 3: Zero-Inflation Analysis<br/>- Expression distribution<br/>- Zero vs non-zero counts"]
+        PlotC --> PlotD["Plot 4: Expression Levels<br/>- MAE by bin<br/>- Correlation by bin<br/>- Sample count by bin"]
+        PlotD --> PlotE["Plot 5: Cell Type Confusion Matrix<br/>Heatmap with annotations"]
+    end
+
+    PlotE --> SavePlots["Save Plots to PNG<br/>{save_dir}/plots/*.png"]
+
+    SavePlots --> PrintSummary["Print Summary to Console"]
+
+    subgraph Summary["Console Summary Output"]
+        PrintSummary --> Sum1["[Overall Metrics]<br/>MSE, RMSE, MAE, R², Pearson, Spearman"]
+        Sum1 --> Sum2["[Gene-wise Metrics]<br/>Mean/Median Pearson, Spearman"]
+        Sum2 --> Sum3["[Spot-wise Metrics]<br/>Mean/Median Pearson"]
+        Sum3 --> Sum4["[Zero-Inflation Metrics]<br/>Zero rate, Accuracy, Sensitivity, Specificity"]
+        Sum4 --> Sum5["[Cell Type Classification]<br/>Accuracy, F1 scores"]
+    end
+
+    Sum5 --> ReturnResults["Return Results Dictionary"]
+
+    ReturnResults --> End["End Evaluation"]
+
+    subgraph OutputFiles["Output Files Created"]
+        OutFile1["📄 evaluation_results.json<br/>Complete metrics in JSON format"]
+        OutFile2["📊 plots/overall_scatter.png"]
+        OutFile3["📊 plots/genewise_correlations.png"]
+        OutFile4["📊 plots/zero_inflation_analysis.png"]
+        OutFile5["📊 plots/expression_levels.png"]
+        OutFile6["📊 plots/cell_type_confusion.png"]
+    end
+
+    SaveJSON -.-> OutFile1
+    SavePlots -.-> OutFile2
+    SavePlots -.-> OutFile3
+    SavePlots -.-> OutFile4
+    SavePlots -.-> OutFile5
+    SavePlots -.-> OutFile6
+
+    style Start fill:#c8e6c9
+    style End fill:#c8e6c9
+    style InferenceLoop fill:#e1f5ff
+    style MetricsComputation fill:#fff4e6
+    style Visualization fill:#f3e5f5
+    style Summary fill:#e0f2f1
+    style OutputFiles fill:#f1f8e9
