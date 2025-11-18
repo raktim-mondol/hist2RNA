@@ -40,6 +40,9 @@ saved_features/
 saved_model/
 save_result/
 save_figure/
+evaluation_*/
+**/evaluation_example/
+**/evaluation_results/
 
 # IDE
 .vscode/
