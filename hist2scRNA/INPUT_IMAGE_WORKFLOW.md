@@ -13,13 +13,14 @@ See the diagrams in the [`diagrams/`](./diagrams/) folder:
 
 ## Table of Contents
 1. [Overview](#overview)
-2. [Input Data Requirements](#input-data-requirements)
-3. [Workflow Steps](#workflow-steps)
-4. [Patch Extraction](#patch-extraction)
-5. [Spatial Graph Construction](#spatial-graph-construction)
-6. [Coordinate Alignment](#coordinate-alignment)
-7. [Tools and Software](#tools-and-software)
-8. [Common Issues](#common-issues)
+2. [Complete Example: 5-Spot Dataset](#complete-example-5-spot-dataset)
+3. [Input Data Requirements](#input-data-requirements)
+4. [Workflow Steps](#workflow-steps)
+5. [Patch Extraction](#patch-extraction)
+6. [Spatial Graph Construction](#spatial-graph-construction)
+7. [Coordinate Alignment](#coordinate-alignment)
+8. [Tools and Software](#tools-and-software)
+9. [Common Issues](#common-issues)
 
 ---
 
@@ -41,6 +42,357 @@ Whole Slide Image (WSI)  +  Spatial Transcriptomics Data
                        ↓
         Gene expression per spot
 ```
+
+---
+
+## Complete Example: 5-Spot Dataset
+
+Let's walk through a **complete concrete example** with 5 spots to understand how all the data files connect.
+
+### Scenario
+
+You have a breast cancer tissue sample analyzed with **10X Visium**:
+- **Patient ID**: patient_001
+- **Number of spots**: 5 (simplified for clarity; real Visium has 2000-5000 spots)
+- **Number of genes**: 10 (simplified; real data has 2000-20000 genes)
+- **Cell types**: 3 types (0=Cancer cells, 1=Fibroblasts, 2=Immune cells)
+
+### Visual Spatial Layout
+
+```
+Coordinate System: WSI pixel space
+Y-axis ↑
+
+3550  │        spot_0004 (Fibroblast)
+      │            ●
+3500  │            │
+      │            │
+3450  │    ●───────●───────●
+      │ spot_0001  spot_0002  spot_0003
+      │ (Cancer)   (Immune)   (Cancer)
+3400  │
+      │
+      └─────────────────────────────────→ X-axis
+           1200    1250    1300
+```
+
+### Complete Dataset Files
+
+#### 1️⃣ **patches/ folder** (Histopathology Images)
+
+```
+patches/
+├── spot_0001.png    # 224×224 RGB image centered at (1200, 3450)
+├── spot_0002.png    # 224×224 RGB image centered at (1250, 3450)
+├── spot_0003.png    # 224×224 RGB image centered at (1300, 3450)
+├── spot_0004.png    # 224×224 RGB image centered at (1250, 3500)
+└── spot_0005.png    # 224×224 RGB image centered at (1250, 3550)
+```
+
+**Each patch:**
+- **Size**: 224 × 224 × 3 (RGB)
+- **File size**: ~50-200 KB
+- **Centered** at the spot coordinate in the WSI
+- **Extracted** from larger Whole Slide Image (e.g., 75,000 × 62,000 pixels)
+
+---
+
+#### 2️⃣ **spatial_coordinates.csv** (Where are the spots?)
+
+```csv
+spot_id,x,y
+spot_0001,1200,3450
+spot_0002,1250,3450
+spot_0003,1300,3450
+spot_0004,1250,3500
+spot_0005,1250,3550
+```
+
+**Explanation:**
+- `x, y`: Pixel coordinates in the Whole Slide Image where patch was extracted
+- These coordinates were obtained from 10X Visium `tissue_positions_list.csv`
+- The patch for `spot_0001` is extracted from WSI region: `[1200-112:1200+112, 3450-112:3450+112]`
+
+---
+
+#### 3️⃣ **gene_expression.csv** (What genes are expressed?)
+
+```csv
+spot_id,BRCA1,TP53,ESR1,ERBB2,MKI67,CD8A,CD4,ACTA2,VIM,COL1A1
+spot_0001,12.3,8.5,15.2,0.0,22.1,0.0,0.3,1.2,0.5,0.8
+spot_0002,0.5,1.2,0.0,0.0,1.3,45.6,38.2,0.0,2.1,0.3
+spot_0003,15.8,9.2,18.5,0.0,25.3,0.0,0.5,0.9,0.0,1.1
+spot_0004,2.1,3.5,0.0,0.0,5.2,0.0,0.0,52.3,48.7,65.4
+spot_0005,1.8,2.9,0.0,0.0,4.8,0.0,0.0,48.9,51.2,62.8
+```
+
+**Explanation:**
+- Each row = one spot
+- Each column (except spot_id) = one gene
+- Values = normalized gene expression (e.g., log2(counts+1))
+- **Sparsity**: Notice many zeros (~70-80% in real single-cell data)
+
+**Gene interpretation:**
+- `spot_0001` (Cancer): High BRCA1, TP53, ESR1, MKI67 (cancer markers)
+- `spot_0002` (Immune): High CD8A, CD4 (T-cell markers)
+- `spot_0004` (Fibroblast): High ACTA2, VIM, COL1A1 (stromal markers)
+
+---
+
+#### 4️⃣ **cell_types.csv** (What cell type is each spot?)
+
+```csv
+spot_id,cell_type
+spot_0001,0
+spot_0002,2
+spot_0003,0
+spot_0004,1
+spot_0005,1
+```
+
+**Explanation:**
+- Cell type labels (integer encoding)
+- **0** = Cancer cells (epithelial)
+- **1** = Fibroblasts (stromal)
+- **2** = Immune cells (lymphocytes)
+
+**This is optional** but helps with:
+- Multi-task learning (model predicts both gene expression AND cell type)
+- Validation (check if predicted expression matches expected cell type)
+- Biological interpretation
+
+---
+
+#### 5️⃣ **spatial_edges.csv** (Which spots are neighbors?)
+
+```csv
+source,target
+0,1
+0,3
+1,0
+1,2
+1,3
+2,1
+2,3
+3,0
+3,1
+3,2
+3,4
+4,3
+```
+
+**Explanation:**
+- **Indices** (not spot_ids): 0=spot_0001, 1=spot_0002, 2=spot_0003, 3=spot_0004, 4=spot_0005
+- **Each row** = one edge in the spatial graph
+- **Undirected graph**: Both (0,1) and (1,0) included for bidirectional message passing
+
+**Visual representation:**
+```
+    0 (spot_0001) ←→ 1 (spot_0002) ←→ 2 (spot_0003)
+         ↕                ↕                ↕
+         └────────→ 3 (spot_0004) ←──────┘
+                         ↕
+                    4 (spot_0005)
+```
+
+**How edges were created (k-NN, k=3 for this example):**
+
+For `spot_0001` (index 0):
+```
+Distances to other spots:
+  - spot_0002 (index 1): 50 pixels   ✓ (1st neighbor)
+  - spot_0003 (index 2): 100 pixels  ✗ (4th neighbor, beyond k=3)
+  - spot_0004 (index 3): 52 pixels   ✓ (2nd neighbor)
+  - spot_0005 (index 4): 102 pixels  ✗ (beyond k=3)
+
+Created edges: (0,1) and (0,3)
+```
+
+For `spot_0002` (index 1):
+```
+Distances:
+  - spot_0001: 50 pixels   ✓
+  - spot_0003: 50 pixels   ✓
+  - spot_0004: 52 pixels   ✓
+  - spot_0005: 102 pixels  ✗
+
+Created edges: (1,0), (1,2), (1,3)
+```
+
+...and so on for all spots.
+
+---
+
+### How the Model Uses This Data
+
+#### Step 1: Data Loading
+
+```python
+# Load spot_0001
+image = load_image('patches/spot_0001.png')        # 224×224×3 tensor
+coords = get_coordinates('spot_0001')              # [1200, 3450]
+expression = get_expression('spot_0001')           # [12.3, 8.5, 15.2, ...]
+cell_type = get_cell_type('spot_0001')             # 0 (Cancer)
+neighbors = get_neighbors(index=0)                 # [1, 3] from edges
+```
+
+#### Step 2: Vision Transformer (ViT)
+
+```python
+# Process image through ViT
+image_features = ViT(image)
+# Output: 768-dimensional feature vector
+# Captures: tissue morphology, cell density, nuclear features, etc.
+```
+
+#### Step 3: Graph Attention Network (GAT)
+
+```python
+# Get neighbor features
+neighbor_features = [
+    ViT(load_image('patches/spot_0002.png')),  # neighbor 1
+    ViT(load_image('patches/spot_0004.png'))   # neighbor 3
+]
+
+# Aggregate with attention
+attention_weights = compute_attention(image_features, neighbor_features)
+# e.g., [0.6, 0.4] - weight neighbor 1 more than neighbor 3
+
+aggregated_features = (
+    0.6 * neighbor_features[0] +
+    0.4 * neighbor_features[1]
+)
+
+# Combine own and neighbor information
+final_features = image_features + aggregated_features
+```
+
+#### Step 4: Prediction
+
+```python
+# Predict ZINB parameters
+mu, theta, pi = ZINB_decoder(final_features)
+# mu: [12.1, 8.7, 14.9, 0.1, 21.8, ...] - predicted mean expression
+# theta: [2.5, 1.8, 3.2, ...] - dispersion
+# pi: [0.1, 0.15, 0.05, 0.9, ...] - zero probability
+
+# Predict cell type
+cell_type_logits = CellType_head(final_features)
+predicted_cell_type = argmax(cell_type_logits)  # 0 (Cancer) ✓
+```
+
+#### Step 5: Loss Calculation
+
+```python
+# Gene expression loss
+zinb_loss = ZINB_loss(
+    mu=[12.1, 8.7, 14.9, ...],
+    theta=[2.5, 1.8, 3.2, ...],
+    pi=[0.1, 0.15, 0.05, ...],
+    target=[12.3, 8.5, 15.2, ...]  # ground truth
+)
+
+# Cell type loss
+ce_loss = CrossEntropy_loss(
+    predicted=cell_type_logits,
+    target=0  # ground truth: Cancer
+)
+
+# Total loss
+loss = zinb_loss + 0.1 * ce_loss
+```
+
+---
+
+### Complete Directory Structure
+
+```
+patient_001_dataset/
+│
+├── patches/                        # Extracted from WSI
+│   ├── spot_0001.png              # 224×224 RGB, ~150 KB
+│   ├── spot_0002.png              # 224×224 RGB, ~145 KB
+│   ├── spot_0003.png              # 224×224 RGB, ~148 KB
+│   ├── spot_0004.png              # 224×224 RGB, ~152 KB
+│   └── spot_0005.png              # 224×224 RGB, ~149 KB
+│
+├── spatial_coordinates.csv         # 5 rows × 3 columns (spot_id, x, y)
+├── spatial_edges.csv               # 12 rows × 2 columns (source, target)
+├── gene_expression.csv             # 5 rows × 11 columns (spot_id + 10 genes)
+├── cell_types.csv                  # 5 rows × 2 columns (spot_id, cell_type)
+│
+└── metadata.json                   # Optional dataset info
+    {
+      "patient_id": "patient_001",
+      "n_spots": 5,
+      "n_genes": 10,
+      "n_cell_types": 3,
+      "platform": "10X Visium",
+      "tissue": "Breast Cancer",
+      "resolution": "0.25 um/pixel"
+    }
+```
+
+---
+
+### Data Relationships
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    ONE-TO-ONE RELATIONSHIPS                   │
+├──────────────────────────────────────────────────────────────┤
+│                                                               │
+│  spot_0001  →  patches/spot_0001.png (image)                 │
+│             →  x=1200, y=3450 (location)                     │
+│             →  [12.3, 8.5, 15.2, ...] (gene expression)      │
+│             →  cell_type=0 (Cancer)                          │
+│                                                               │
+└──────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────┐
+│                    MANY-TO-MANY RELATIONSHIPS                 │
+│                      (via spatial_edges.csv)                  │
+├──────────────────────────────────────────────────────────────┤
+│                                                               │
+│  spot_0001 (index 0)  ←→  spot_0002 (index 1)                │
+│                       ←→  spot_0004 (index 3)                │
+│                                                               │
+│  spot_0002 (index 1)  ←→  spot_0001 (index 0)                │
+│                       ←→  spot_0003 (index 2)                │
+│                       ←→  spot_0004 (index 3)                │
+│                                                               │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Why This Example Matters
+
+**Understanding the connections:**
+
+1. **Each spot is a physical location** in the tissue (x, y coordinates)
+2. **Each spot has a histopathology image** (224×224 patch)
+3. **Each spot has gene expression** (measured via RNA sequencing)
+4. **Each spot has neighbors** (defined by spatial proximity)
+5. **The model learns** to predict gene expression from the image AND its spatial context
+
+**Key insight**:
+- Spot `spot_0002` (Immune cell) is **surrounded by** cancer cells (spot_0001, spot_0003) and fibroblasts (spot_0004)
+- The GAT learns: "This image looks immune-like AND it's near cancer cells → predict high CD8A/CD4 expression"
+- This is **spatial transcriptomics**: gene expression depends on tissue microenvironment!
+
+---
+
+### Scaling to Real Data
+
+| Aspect | This Example | Real 10X Visium | Real Slide-seq |
+|--------|-------------|-----------------|----------------|
+| **Spots** | 5 | 2,000 - 5,000 | 10,000 - 50,000 |
+| **Genes** | 10 | 2,000 - 20,000 | 2,000 - 20,000 |
+| **Edges** | 12 | ~12,000 - 30,000 | ~60,000 - 300,000 |
+| **Cell Types** | 3 | 5 - 20 | 5 - 20 |
+| **WSI Size** | 75K × 62K pixels | 50K - 200K pixels | 50K - 200K pixels |
+| **Dataset Size** | ~1 MB | ~500 MB - 2 GB | ~1 - 5 GB |
 
 ---
 
