@@ -404,7 +404,7 @@ def main(args):
     optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
     # Learning rate scheduler
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5, verbose=True)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
 
     # Training loop
     print(f"\nStarting training for {args.epochs} epochs...")
@@ -466,7 +466,7 @@ def main(args):
     print("Evaluating best model on test set...")
     print(f"{'='*60}")
 
-    checkpoint = torch.load(args.checkpoint_path)
+    checkpoint = torch.load(args.checkpoint_path, weights_only=False)
     model.load_state_dict(checkpoint['model_state_dict'])
 
     test_metrics, test_predictions, test_targets = evaluate(
