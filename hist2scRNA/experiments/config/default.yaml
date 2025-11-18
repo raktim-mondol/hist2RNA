@@ -1,0 +1,35 @@
+# Default configuration for hist2scRNA model training
+
+model:
+  img_size: 224
+  patch_size: 16
+  in_channels: 3
+  embed_dim: 384
+  vit_depth: 6
+  vit_heads: 6
+  gnn_hidden: 512
+  gnn_heads: 4
+  n_genes: 2000
+  n_cell_types: 10
+  use_spatial_graph: true
+  dropout: 0.1
+
+training:
+  epochs: 50
+  batch_size: 8
+  lr: 0.0001
+  weight_decay: 0.01
+  alpha: 0.1  # Weight for cell type loss
+  seed: 42
+
+data:
+  data_dir: './dummy_data/small'
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  use_images: true
+  augment: false
+
+output_dir: './output_scrna'
+checkpoint_dir: './models/checkpoints'
+device: 'cuda'
