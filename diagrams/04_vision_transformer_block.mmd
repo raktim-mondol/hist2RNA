@@ -1,0 +1,35 @@
+graph TB
+    subgraph "Single Transformer Block"
+        A[Input Features<br/>batch×n_tokens×embed_dim] --> B[Layer Norm 1]
+        B --> C[Multi-Head Self-Attention]
+
+        subgraph "Multi-Head Self-Attention"
+            C --> D[Linear: Q, K, V<br/>embed_dim → 3×embed_dim]
+            D --> E[Split into<br/>num_heads heads]
+            E --> F[Scaled Dot-Product<br/>Attention per head]
+            F --> G[Concat heads]
+            G --> H[Linear Projection<br/>embed_dim → embed_dim]
+        end
+
+        H --> I[Dropout]
+        I --> J[Residual Add]
+        A --> J
+
+        J --> K[Layer Norm 2]
+        K --> L[Feed-Forward Network]
+
+        subgraph "Feed-Forward Network"
+            L --> M[Linear 1<br/>embed_dim → 4×embed_dim]
+            M --> N[GELU Activation]
+            N --> O[Dropout]
+            O --> P[Linear 2<br/>4×embed_dim → embed_dim]
+            P --> Q[Dropout]
+        end
+
+        Q --> R[Residual Add]
+        J --> R
+        R --> S[Output Features<br/>batch×n_tokens×embed_dim]
+    end
+
+    style C fill:#e1f5ff
+    style L fill:#ffe1f5

@@ -1,0 +1,44 @@
+flowchart LR
+    subgraph "Input Preparation"
+        A1[New Histopathology<br/>Image] --> A2[Resize & Normalize<br/>224×224]
+        A3[Spatial Locations<br/>Optional] --> A4[Build k-NN Graph<br/>if multiple spots]
+    end
+
+    subgraph "Feature Extraction"
+        A2 --> B1[Vision Transformer<br/>Extract Features]
+        B1 --> B2[Class Token<br/>or Patch Tokens]
+    end
+
+    subgraph "Spatial Context"
+        B2 --> C1[Graph Attention<br/>if graph available]
+        A4 --> C1
+        C1 --> C2[Spatially-Aware<br/>Features]
+
+        B2 -.->|No Graph| C2
+    end
+
+    subgraph "Prediction"
+        C2 --> D1[Gene Expression<br/>Decoder]
+        D1 --> D2[ZINB Parameters<br/>μ, θ, π]
+
+        C2 --> E1[Cell Type<br/>Classifier]
+        E1 --> E2[Cell Type<br/>Probabilities]
+    end
+
+    subgraph "Output"
+        D2 --> F1[Predicted Expression<br/>Use μ mean]
+        D2 --> F2[Expression Uncertainty<br/>Use θ variance]
+        D2 --> F3[Dropout Probability<br/>Use π]
+        E2 --> F4[Cell Type<br/>argmax]
+    end
+
+    subgraph "Visualization"
+        F1 --> G1[Heatmap<br/>Gene Expression]
+        F4 --> G2[Spatial Map<br/>Cell Types]
+        F2 --> G3[Uncertainty Map<br/>Confidence]
+    end
+
+    style A1 fill:#e1f5ff
+    style F1 fill:#e1ffe1
+    style F4 fill:#ffe1e1
+    style G1 fill:#fff4e1

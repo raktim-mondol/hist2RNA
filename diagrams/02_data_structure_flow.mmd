@@ -1,0 +1,42 @@
+graph LR
+    subgraph "Raw Data"
+        A1[WSI<br/>Whole Slide Image] --> A2[Image Patches<br/>224×224 pixels]
+        A3[Spatial<br/>Transcriptomics<br/>10X Visium] --> A4[Spot Coordinates<br/>x, y positions]
+        A3 --> A5[Gene Expression<br/>Count Matrix]
+        A3 --> A6[Cell Type Labels<br/>Annotations]
+    end
+
+    subgraph "Preprocessing"
+        A2 --> B1[Color Normalization<br/>Macenko]
+        B1 --> B2[H&E Normalized<br/>Patches]
+
+        A4 --> C1[k-NN Graph<br/>Construction]
+        C1 --> C2[Spatial Edges<br/>Adjacency List]
+
+        A5 --> D1[log2 1+x<br/>Transform]
+        D1 --> D2[Normalized<br/>Expression]
+    end
+
+    subgraph "Dataset Structure"
+        B2 --> E1[patches/<br/>spot_0000.png<br/>spot_0001.png<br/>...]
+        C2 --> E2[spatial_edges.csv<br/>source, target]
+        A4 --> E3[spatial_coordinates.csv<br/>spot_id, x, y]
+        D2 --> E4[gene_expression.csv<br/>spots × genes]
+        A6 --> E5[cell_types.csv<br/>spot_id, cell_type]
+    end
+
+    subgraph "Model Input"
+        E1 --> F1[Image Tensor<br/>batch×3×224×224]
+        E2 --> F2[Edge Index<br/>2×n_edges]
+        E3 --> F3[Coordinates<br/>batch×2]
+        E4 --> F4[Target Expression<br/>batch×n_genes]
+        E5 --> F5[Target Cell Type<br/>batch]
+    end
+
+    style A1 fill:#ffe1e1
+    style A3 fill:#ffe1e1
+    style E1 fill:#e1f5ff
+    style E2 fill:#e1f5ff
+    style E3 fill:#e1f5ff
+    style E4 fill:#e1f5ff
+    style E5 fill:#e1f5ff

@@ -1,0 +1,29 @@
+graph TB
+    subgraph "hist2RNA Bulk"
+        A1[Image Patches] --> A2[CNN ResNet50]
+        A2 --> A3[Average Pooling<br/>Aggregate patches]
+        A3 --> A4[1D Convolutions]
+        A4 --> A5[Global Average Pool]
+        A5 --> A6[Linear Decoder<br/>n_genes outputs]
+        A6 --> A7[MSE Loss]
+    end
+
+    subgraph "hist2scRNA Single-Cell"
+        B1[Image Patches] --> B2[Vision Transformer<br/>Self-Attention]
+        B2 --> B3[Spatial Graph<br/>GAT layers]
+        B3 --> B4[Multi-Layer Decoder<br/>1024→2048]
+        B4 --> B5[Three ZINB Heads<br/>μ, θ, π]
+        B5 --> B6[ZINB Loss<br/>+ Cell Type Loss]
+    end
+
+    A1 -.Comparison.-> B1
+    A2 -.CNN vs ViT.-> B2
+    A3 -.No Graph.-> B3
+    A4 -.Simple.-> B4
+    A6 -.Single Head.-> B5
+    A7 -.MSE vs ZINB.-> B6
+
+    style A1 fill:#ffe1e1
+    style A7 fill:#ffe1e1
+    style B1 fill:#e1ffe1
+    style B6 fill:#e1ffe1
