@@ -50,6 +50,28 @@ This folder contains Mermaid diagrams that visualize the hist2scRNA model archit
    - Zero-inflated and non-zero cases
    - Mathematical loss computation
 
+### Input Preprocessing
+
+12. **[Input Preprocessing Workflow](./12_input_preprocessing_workflow.mmd)** 🔧
+    - Complete preprocessing pipeline from WSI to model-ready data
+    - Coordinate alignment and quality control
+    - Patch extraction and spatial graph construction
+
+13. **[Patch Extraction Process](./13_patch_extraction_process.mmd)** ✂️
+    - Detailed patch extraction from Whole Slide Images
+    - Boundary calculation and region extraction
+    - Quality control and color normalization
+
+14. **[Spatial Graph Construction](./14_spatial_graph_construction.mmd)** 🕸️
+    - k-NN neighbor search using KDTree
+    - Edge list creation for Graph Attention Networks
+    - Visium hexagonal grid structure
+
+15. **[Coordinate Alignment](./15_coordinate_alignment.mmd)** 📍
+    - Coordinate system transformations (Visium → WSI)
+    - Scale factor application and manual registration
+    - Alignment validation and troubleshooting
+
 ### Advanced Concepts
 
 9. **[Multi-Task Learning](./09_multitask_learning.mmd)** 🎯

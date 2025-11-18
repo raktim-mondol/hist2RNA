@@ -12,6 +12,7 @@ hist2scRNA/
 ├── generate_dummy_scrna_data.py     # Synthetic data generation
 ├── SCRNA_README.md                  # Full documentation
 ├── QUICKSTART_SCRNA.md              # Quick start guide
+├── INPUT_IMAGE_WORKFLOW.md          # Image preprocessing guide (NEW)
 ├── ARCHITECTURE_DIAGRAMS.md         # Diagram documentation
 └── diagrams/                        # Mermaid diagram files
     ├── 01_overall_architecture.mmd
@@ -25,6 +26,10 @@ hist2scRNA/
     ├── 09_multitask_learning.mmd
     ├── 10_bulk_vs_singlecell.mmd
     ├── 11_model_scalability.mmd
+    ├── 12_input_preprocessing_workflow.mmd  (NEW)
+    ├── 13_patch_extraction_process.mmd     (NEW)
+    ├── 14_spatial_graph_construction.mmd   (NEW)
+    ├── 15_coordinate_alignment.mmd         (NEW)
     └── README.md
 ```
 
@@ -54,6 +59,7 @@ python train_hist2scRNA.py \
 
 - **[SCRNA_README.md](SCRNA_README.md)** - Comprehensive documentation
 - **[QUICKSTART_SCRNA.md](QUICKSTART_SCRNA.md)** - 5-minute quick start guide
+- **[INPUT_IMAGE_WORKFLOW.md](INPUT_IMAGE_WORKFLOW.md)** - 📸 Image preprocessing guide
 - **[ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)** - Visual architecture diagrams
 
 ## 🏗️ Architecture Overview

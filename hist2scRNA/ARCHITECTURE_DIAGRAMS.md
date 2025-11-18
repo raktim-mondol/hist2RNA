@@ -136,6 +136,63 @@ Different model configurations (Small/Medium/Large/Lightweight) with parameter c
 
 ---
 
+### 12. Input Preprocessing Workflow
+**File:** [`diagrams/12_input_preprocessing_workflow.mmd`](./diagrams/12_input_preprocessing_workflow.mmd)
+
+Complete preprocessing pipeline from raw data to model-ready input:
+- **Load Data**: WSI, spot coordinates, gene expression
+- **Coordinate Alignment**: Visium space → WSI space transformation
+- **Quality Control**: Filter in-tissue spots, check coverage
+- **Patch Extraction**: Extract 224×224 patches at spot locations
+- **Spatial Graph**: Build k-NN graph connecting neighbors
+- **Output**: Organized dataset ready for training
+
+See [INPUT_IMAGE_WORKFLOW.md](./INPUT_IMAGE_WORKFLOW.md) for detailed documentation.
+
+---
+
+### 13. Patch Extraction Process
+**File:** [`diagrams/13_patch_extraction_process.mmd`](./diagrams/13_patch_extraction_process.mmd)
+
+Detailed patch extraction from Whole Slide Images:
+- Calculate patch boundaries (center ± 112 pixels)
+- Extract region using OpenSlide
+- Convert to RGB and check quality
+- Apply color normalization (Macenko)
+- Save as 224×224 PNG files
+
+**Key Point**: Unlike bulk RNA (random patches), patches are **centered at specific spot coordinates**.
+
+---
+
+### 14. Spatial Graph Construction
+**File:** [`diagrams/14_spatial_graph_construction.mmd`](./diagrams/14_spatial_graph_construction.mmd)
+
+Building the spatial graph for Graph Attention Networks:
+- Use KDTree for efficient neighbor search
+- Find k=6 nearest neighbors (Visium hexagonal grid)
+- Create edge list connecting spots
+- Alternative: distance threshold method
+- Graph properties: ~6× edges as nodes, sparse connectivity
+
+**For Visium**: Each spot has 6 neighbors in hexagonal arrangement (100 μm center-to-center spacing).
+
+---
+
+### 15. Coordinate Alignment
+**File:** [`diagrams/15_coordinate_alignment.mmd`](./diagrams/15_coordinate_alignment.mmd)
+
+Aligning multiple coordinate systems:
+- **Visium array space** → **Visium image space** → **WSI pixel space**
+- Apply scale factors from `scalefactors_json.json`
+- Handle coordinate transformations (flip, rotate)
+- Manual registration using fiducial markers if needed
+- Validation: visual inspection of alignment
+
+**Common Issues**: Y-axis flipping, rotation, scale factor mismatches.
+
+---
+
 ## 🎨 Design Rationale
 
 | Component | Choice | Rationale |

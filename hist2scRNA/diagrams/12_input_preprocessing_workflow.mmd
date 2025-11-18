@@ -1,0 +1,96 @@
+flowchart TD
+    subgraph "Input Data"
+        A1[Whole Slide Image<br/>WSI file .svs, .tiff]
+        A2[Spatial Transcriptomics<br/>10X Visium / Slide-seq]
+        A3[Gene Expression<br/>Count Matrix]
+    end
+
+    subgraph "Step 1: Load Data"
+        B1[Load WSI<br/>OpenSlide]
+        B2[Load Spot Coordinates<br/>tissue_positions_list.csv]
+        B3[Load Gene Expression<br/>filtered_feature_bc_matrix]
+
+        A1 --> B1
+        A2 --> B2
+        A3 --> B3
+    end
+
+    subgraph "Step 2: Coordinate Alignment"
+        C1[Read Scale Factors<br/>scalefactors_json.json]
+        C2{Coordinates<br/>Aligned?}
+        C3[Transform Coordinates<br/>Visium space → WSI space]
+        C4[Manual Alignment<br/>QuPath or fiducial markers]
+
+        B2 --> C1
+        C1 --> C2
+        C2 -->|Yes| D1
+        C2 -->|No| C3
+        C3 --> C4
+        C4 --> D1
+    end
+
+    subgraph "Step 3: Quality Control"
+        D1[Filter In-Tissue Spots<br/>in_tissue == 1]
+        D2[Check Spot Coverage<br/>% tissue in patch]
+        D3[Remove Low Quality<br/>Blank or folded tissue]
+
+        D1 --> D2
+        D2 --> D3
+    end
+
+    subgraph "Step 4: Patch Extraction"
+        E1[For Each Spot<br/>Get x, y coordinates]
+        E2[Calculate Patch Bounds<br/>center ± 112 pixels]
+        E3[Extract 224×224 Patch<br/>slide.read_region]
+        E4[Convert to RGB<br/>Remove alpha channel]
+        E5[Color Normalization<br/>Macenko method]
+
+        D3 --> E1
+        E1 --> E2
+        E2 --> E3
+        E3 --> E4
+        E4 --> E5
+    end
+
+    subgraph "Step 5: Spatial Graph"
+        F1[Build KDTree<br/>from coordinates]
+        F2[For Each Spot<br/>Find k=6 neighbors]
+        F3[Create Edge List<br/>source, target]
+        F4[Save Edges<br/>spatial_edges.csv]
+
+        E5 --> F1
+        F1 --> F2
+        F2 --> F3
+        F3 --> F4
+    end
+
+    subgraph "Step 6: Save Dataset"
+        G1[Save Patches<br/>patches/spot_*.png]
+        G2[Save Coordinates<br/>spatial_coordinates.csv]
+        G3[Save Expression<br/>gene_expression.csv]
+        G4[Save Metadata<br/>dataset_info.json]
+
+        E5 --> G1
+        F4 --> G2
+        B3 --> G3
+        G1 --> G4
+        G2 --> G4
+        G3 --> G4
+    end
+
+    subgraph "Output: Ready for Training"
+        H1[Complete Dataset<br/>patches/ + CSV files]
+        H2[Load in DataLoader<br/>SpatialTranscriptomicsDataset]
+        H3[Train hist2scRNA<br/>Model]
+
+        G4 --> H1
+        H1 --> H2
+        H2 --> H3
+    end
+
+    style A1 fill:#ffe1e1
+    style A2 fill:#ffe1e1
+    style B1 fill:#e1f5ff
+    style E5 fill:#fff4e1
+    style F4 fill:#ffe1f5
+    style H3 fill:#e1ffe1

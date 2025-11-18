@@ -1,0 +1,114 @@
+graph TB
+    subgraph "Input: Spot Coordinates"
+        A[All Spot Coordinates<br/>n_spots × 2 matrix]
+        A1[spot_0001: x=1250, y=3400]
+        A2[spot_0002: x=1300, y=3420]
+        A3[spot_0003: x=1200, y=3450]
+        A4[... n_spots total]
+
+        A --> A1
+        A --> A2
+        A --> A3
+        A --> A4
+    end
+
+    subgraph "Build KDTree"
+        B[scipy.spatial.KDTree<br/>Efficient neighbor search]
+        B1[Index spatial coordinates]
+        B2[O log n query time]
+
+        A --> B
+        B --> B1
+        B1 --> B2
+    end
+
+    subgraph "Find k-Nearest Neighbors"
+        C[For Each Spot i]
+        C1[Query k+1 neighbors<br/>k=6 for Visium hexagonal]
+        C2[Get distances and indices]
+        C3[Skip first index<br/>itself]
+        C4[Create edges to neighbors]
+
+        B2 --> C
+        C --> C1
+        C1 --> C2
+        C2 --> C3
+        C3 --> C4
+    end
+
+    subgraph "Example: Spot 0001 Neighbors"
+        D1[spot_0001 center]
+        D2[neighbor: spot_0002<br/>distance: 52 pixels]
+        D3[neighbor: spot_0005<br/>distance: 98 pixels]
+        D4[neighbor: spot_0012<br/>distance: 103 pixels]
+        D5[... 3 more neighbors]
+
+        C4 --> D1
+        D1 --> D2
+        D1 --> D3
+        D1 --> D4
+        D1 --> D5
+    end
+
+    subgraph "Create Edge List"
+        E[Edge Array<br/>2 × n_edges]
+        E1["[0, 1] spot_0001 → spot_0002"]
+        E2["[0, 5] spot_0001 → spot_0005"]
+        E3["[0, 12] spot_0001 → spot_0012"]
+        E4[... for all spots]
+
+        D5 --> E
+        E --> E1
+        E --> E2
+        E --> E3
+        E --> E4
+    end
+
+    subgraph "Graph Properties"
+        F[Undirected Graph]
+        F1[Nodes: n_spots]
+        F2[Edges: ~6 × n_spots]
+        F3[Avg Degree: ~12<br/>6 incoming + 6 outgoing]
+        F4[Sparse: <1% density]
+
+        E4 --> F
+        F --> F1
+        F --> F2
+        F --> F3
+        F --> F4
+    end
+
+    subgraph "Visium Hexagonal Grid"
+        G1["    ●   ●   ●   ●<br/>      ●   ●   ●   ●<br/>    ●   ●   ●   ●"]
+        G2[Each spot has 6 neighbors<br/>100 μm center-to-center<br/>55 μm spot diameter]
+
+        F4 --> G1
+        G1 --> G2
+    end
+
+    subgraph "Save Graph"
+        H[spatial_edges.csv]
+        H1["source,target<br/>0,1<br/>0,5<br/>0,12<br/>..."]
+        H2[Used by GAT layers<br/>in hist2scRNA model]
+
+        G2 --> H
+        H --> H1
+        H1 --> H2
+    end
+
+    subgraph "Alternative: Distance Threshold"
+        I[Instead of k-NN<br/>Connect if distance < threshold]
+        I1[threshold = 200 pixels<br/>~100 μm tissue]
+        I2[More edges in dense regions<br/>Fewer in sparse regions]
+
+        H2 -.Alternative.-> I
+        I --> I1
+        I1 --> I2
+    end
+
+    style A fill:#ffe1e1
+    style B fill:#e1f5ff
+    style C4 fill:#fff4e1
+    style E fill:#ffe1f5
+    style H2 fill:#e1ffe1
+    style I2 fill:#f0f0f0

@@ -1,0 +1,111 @@
+graph TB
+    subgraph "Coordinate Systems"
+        A1[Visium Array Space<br/>row, col grid indices]
+        A2[Visium Image Space<br/>pixels in tissue_hires_image.png]
+        A3[WSI Pixel Space<br/>pixels in actual .svs file]
+    end
+
+    subgraph "10X Visium Data"
+        B1[tissue_positions_list.csv]
+        B2[scalefactors_json.json]
+        B3[tissue_hires_image.png]
+        B4[tissue_lowres_image.png]
+
+        A1 --> B1
+        A2 --> B2
+        A2 --> B3
+        A2 --> B4
+    end
+
+    subgraph "Scale Factors"
+        C1["tissue_hires_scalef: 0.08<br/>fiducial_diameter_fullres: 144.44<br/>spot_diameter_fullres: 89.43"]
+        C2[Multipliers to convert<br/>between coordinate spaces]
+
+        B2 --> C1
+        C1 --> C2
+    end
+
+    subgraph "Coordinate Transformation"
+        D1[Read pxl_col_in_fullres<br/>pxl_row_in_fullres]
+        D2{Already in<br/>WSI space?}
+        D3[Use coordinates directly<br/>No transformation needed]
+        D4[Apply scale factor<br/>wsi_x = x / scale]
+
+        B1 --> D1
+        D1 --> D2
+        D2 -->|Visium V1| D3
+        D2 -->|Other| D4
+    end
+
+    subgraph "Common Issues"
+        E1{Alignment<br/>Correct?}
+        E2[Patches align with tissue ✓]
+        E3[Misalignment ✗]
+
+        D3 --> E1
+        D4 --> E1
+        E1 -->|Yes| E2
+        E1 -->|No| E3
+    end
+
+    subgraph "Fix Misalignment"
+        F1[Flip Y axis<br/>wsi_y = height - y]
+        F2[Rotate coordinates<br/>90°, 180°, 270°]
+        F3[Manual registration<br/>Use QuPath + fiducials]
+        F4[Apply affine transform<br/>Rotation + translation + scale]
+
+        E3 --> F1
+        E3 --> F2
+        E3 --> F3
+        F1 --> F4
+        F2 --> F4
+        F3 --> F4
+    end
+
+    subgraph "Validation"
+        G1[Overlay coordinates on WSI<br/>Visual inspection]
+        G2[Check spot locations<br/>Match tissue morphology?]
+        G3{Spots in<br/>correct tissue<br/>regions?}
+        G4[Alignment SUCCESS ✓<br/>Proceed with extraction]
+        G5[Try different transform<br/>Iterate]
+
+        F4 --> G1
+        E2 --> G1
+        G1 --> G2
+        G2 --> G3
+        G3 -->|Yes| G4
+        G3 -->|No| G5
+        G5 --> F1
+    end
+
+    subgraph "Manual Registration Steps"
+        H1[1. Identify Fiducials<br/>Corner spots on slide]
+        H2[2. Mark in WSI<br/>Using QuPath or similar]
+        H3[3. Compute Transform<br/>Least squares fit]
+        H4["4. Apply to all spots<br/>x' = ax + by + c<br/>y' = dx + ey + f"]
+
+        F3 --> H1
+        H1 --> H2
+        H2 --> H3
+        H3 --> H4
+        H4 --> G1
+    end
+
+    subgraph "Example Transformation"
+        I1["Input:<br/>Visium x=1000, y=1500"]
+        I2["Scale Factor: 0.08"]
+        I3["WSI x = 1000 / 0.08 = 12,500<br/>WSI y = 1500 / 0.08 = 18,750"]
+        I4["Extract patch at 12,500, 18,750"]
+
+        D4 -.Example.-> I1
+        I1 --> I2
+        I2 --> I3
+        I3 --> I4
+    end
+
+    style A1 fill:#ffe1e1
+    style B1 fill:#e1f5ff
+    style C1 fill:#fff4e1
+    style G4 fill:#e1ffe1
+    style E3 fill:#ffcccc
+    style F3 fill:#ffffcc
