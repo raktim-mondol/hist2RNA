@@ -1,0 +1,22 @@
+# Main configuration file for hist2scRNA
+# This is a simplified version. See experiments/config/default.yaml for full options
+
+# Model configuration
+model:
+  embed_dim: 384
+  vit_depth: 6
+  vit_heads: 6
+
+# Training configuration
+training:
+  epochs: 50
+  batch_size: 8
+  lr: 0.0001
+
+# Data configuration
+data:
+  data_dir: './dummy_data/small'
+
+# Output
+output_dir: './output_scrna'
+device: 'cuda'
