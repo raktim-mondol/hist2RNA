@@ -114,7 +114,34 @@ python train_hist2scRNA.py \
     --output_dir ./output_scrna_medium
 ```
 
-### 4. Training with Custom Parameters
+### 4. Evaluate the Model
+
+```bash
+# Evaluate with the comprehensive evaluation script
+python evaluate_hist2scRNA.py
+
+# Or evaluate a trained model programmatically
+from evaluate_hist2scRNA import evaluate_model
+import torch
+
+model = torch.load('./output_scrna_medium/best_model.pt', weights_only=False)
+results = evaluate_model(
+    model=model,
+    dataloader=test_dataloader,
+    device='cuda',
+    save_dir='./evaluation_results'
+)
+```
+
+This will generate:
+- Comprehensive metrics (MSE, MAE, R², Pearson/Spearman correlations)
+- Gene-wise and spot-wise performance analysis
+- Zero-inflation metrics (critical for scRNA-seq)
+- Cell type classification metrics
+- Visualization plots saved to `./evaluation_results/plots/`
+- Results JSON file with all metrics
+
+### 5. Training with Custom Parameters
 
 ```bash
 python train_hist2scRNA.py \
@@ -201,22 +228,118 @@ spot_0001,1
 
 ## Evaluation Metrics
 
-The model is evaluated using multiple metrics:
+### Comprehensive Evaluation Script
 
-1. **Gene Expression Metrics**
-   - Mean Squared Error (MSE)
-   - Mean Absolute Error (MAE)
-   - Mean Spearman correlation per spot
-   - Mean Spearman correlation per gene
+Use `evaluate_hist2scRNA.py` for comprehensive model evaluation:
 
-2. **Cell Type Classification**
-   - Accuracy
-   - Per-class precision/recall (optional)
+```bash
+# Run standalone evaluation example with dummy data
+python evaluate_hist2scRNA.py
 
-3. **Loss Components**
-   - ZINB loss (gene expression)
-   - Cross-entropy loss (cell type)
-   - Total combined loss
+# Or use in your code
+from evaluate_hist2scRNA import evaluate_model, scRNAEvaluator
+import torch
+
+# Evaluate a trained model
+model = torch.load('best_model.pt')
+results = evaluate_model(model, test_dataloader, device='cuda', save_dir='./results')
+```
+
+### Performance Metrics
+
+The evaluation script computes the following metrics:
+
+#### 1. **Overall Regression Metrics** (across all genes and spots)
+   - **MSE**: Mean Squared Error
+   - **RMSE**: Root Mean Squared Error
+   - **MAE**: Mean Absolute Error
+   - **R²**: Coefficient of determination (variance explained)
+   - **Pearson correlation**: Linear relationship between true and predicted
+   - **Spearman correlation**: Rank-based correlation (robust to outliers)
+
+#### 2. **Gene-wise Metrics** (per-gene correlation across spots)
+   - Mean/median Pearson correlation per gene
+   - Mean/median Spearman correlation per gene
+   - MSE and MAE for each gene
+   - Expression statistics (mean, std) for true vs predicted
+
+   *Important: Shows how well the model captures expression patterns for each individual gene*
+
+#### 3. **Spot-wise Metrics** (per-spot correlation across genes)
+   - Mean/median Pearson correlation per spot
+   - Mean/median Spearman correlation per spot
+
+   *Important: Shows how well the model captures the full expression profile at each spatial location*
+
+#### 4. **Zero-Inflation Metrics** (handling sparsity)
+   - **Zero rate**: Proportion of zeros in true vs predicted data
+   - **Zero detection accuracy**: Ability to classify zero vs non-zero
+   - **Sensitivity**: True positive rate (detecting non-zero values)
+   - **Specificity**: True negative rate (detecting zero values)
+   - **F1 score**: Harmonic mean of precision and recall
+   - **MAE for non-zero values**: Error excluding dropout events
+
+   *Critical for single-cell data: 70-90% of values are zero*
+
+#### 5. **Cell Type Classification**
+   - **Accuracy**: Overall classification accuracy
+   - **F1 scores**: Macro and weighted F1
+   - **Confusion matrix**: Per-class performance
+   - **Classification report**: Precision, recall, F1 per class
+
+#### 6. **Expression Level Analysis**
+   - Performance stratified by expression level (low/medium/high)
+   - Identifies if model performs better/worse on highly vs lowly expressed genes
+
+### Visualization Outputs
+
+The evaluation script automatically generates:
+- **Overall scatter plot**: True vs predicted expression (10K random samples)
+- **Gene-wise correlation distribution**: Histogram of per-gene correlations
+- **Zero-inflation analysis**: Zero vs non-zero comparison
+- **Expression levels plot**: Performance across expression ranges
+- **Confusion matrix**: Cell type classification heatmap
+
+All plots are saved to `{save_dir}/plots/` and results to `{save_dir}/evaluation_results.json`
+
+### Example Output
+
+```
+[Overall Metrics]
+  MSE:           2.5706
+  RMSE:          1.6033
+  MAE:           1.0319
+  R²:            0.9353
+  Pearson r:     0.9714
+  Spearman ρ:    0.8024
+
+[Gene-wise Metrics]
+  Mean Pearson r:   0.9705
+  Median Pearson r: 0.9715
+
+[Spot-wise Metrics]
+  Mean Pearson r:   0.9712
+  Median Pearson r: 0.9708
+
+[Zero-Inflation Metrics]
+  Zero rate (true): 0.7018
+  Zero rate (pred): 0.4248
+  Zero detection accuracy: 0.7152
+  Sensitivity:      0.9870
+  Specificity:      0.5997
+
+[Cell Type Classification]
+  Accuracy:       0.7500
+  F1 (macro):     0.7401
+```
+
+### Training Metrics
+
+During training, the following losses are monitored:
+
+- **ZINB loss**: Zero-Inflated Negative Binomial loss for gene expression
+- **Cross-entropy loss**: Cell type classification loss
+- **Total combined loss**: Weighted sum of ZINB and CE losses
 
 ## Advanced Usage
 
