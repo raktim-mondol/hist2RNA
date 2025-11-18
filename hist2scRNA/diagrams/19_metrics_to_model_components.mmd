@@ -1,0 +1,119 @@
+graph TB
+    subgraph ModelComponents["Model Architecture Components"]
+        ViT["Vision Transformer (ViT)<br/>━━━━━━━━━━━━━━━<br/>Extracts features from<br/>histopathology patches<br/>224×224 → 768-dim features"]
+
+        GAT["Graph Attention Network (GAT)<br/>━━━━━━━━━━━━━━━<br/>Models spatial relationships<br/>Aggregates neighbor information<br/>k-NN graph (k=6)"]
+
+        Decoder["Gene Expression Decoder<br/>━━━━━━━━━━━━━━━<br/>MLP: 768 → 1024 → 2048<br/>Predicts ZINB parameters"]
+
+        MuHead["μ (Mu) Head<br/>━━━━━━━━━<br/>Linear: 2048 → n_genes<br/>Predicts mean expression<br/>Activation: exp()"]
+
+        ThetaHead["θ (Theta) Head<br/>━━━━━━━━━<br/>Linear: 2048 → n_genes<br/>Predicts dispersion<br/>Activation: exp()"]
+
+        PiHead["π (Pi) Head<br/>━━━━━━━━━<br/>Linear: 2048 → n_genes<br/>Predicts zero-inflation<br/>Activation: sigmoid()"]
+
+        CTHead["Cell Type Head<br/>━━━━━━━━━<br/>Linear: 2048 → n_cell_types<br/>Classification logits"]
+    end
+
+    subgraph Metrics["Evaluation Metrics"]
+        Overall["Overall Metrics<br/>MSE, MAE, R², Pearson"]
+        GeneWise["Gene-wise Metrics<br/>Per-gene correlations"]
+        SpotWise["Spot-wise Metrics<br/>Per-spot correlations"]
+        ZeroRate["Zero Rate<br/>Sparsity matching"]
+        ZeroDetect["Zero Detection<br/>Sensitivity, Specificity"]
+        MAENonZero["MAE (non-zero)<br/>Non-dropout accuracy"]
+        CellTypeAcc["Cell Type<br/>Classification metrics"]
+        ExprLevel["Expression Levels<br/>Stratified performance"]
+    end
+
+    subgraph Diagnosis["What Metrics Tell Us"]
+        ViTDiag["ViT Feature Quality<br/>━━━━━━━━━━━━━━━<br/>✓ High spot-wise correlation<br/>  → Good image features<br/>✗ Low spot-wise correlation<br/>  → Poor feature extraction<br/>  → Need: Better ViT, pretraining"]
+
+        GATDiag["GAT Spatial Modeling<br/>━━━━━━━━━━━━━━━<br/>✓ High spot-wise correlation<br/>  → Spatial context helps<br/>✗ Similar with/without GAT<br/>  → Spatial graph not effective<br/>  → Need: Adjust k, add edge features"]
+
+        DecoderDiag["Decoder Capacity<br/>━━━━━━━━━━━━━━━<br/>✓ High overall correlation<br/>  → Sufficient capacity<br/>✗ Low overall but high spot-wise<br/>  → Decoder bottleneck<br/>  → Need: Wider MLP, more layers"]
+
+        MuDiag["μ (Mean) Prediction<br/>━━━━━━━━━━━━━━━<br/>✓ Low MAE (non-zero)<br/>  → Accurate mean prediction<br/>✗ High MAE (non-zero)<br/>  → Mean estimation poor<br/>  → Check: loss weighting, LR"]
+
+        ThetaDiag["θ (Dispersion) Prediction<br/>━━━━━━━━━━━━━━━<br/>Gene variability modeling<br/>No direct metric, but affects:<br/>- ZINB loss convergence<br/>- Prediction confidence<br/>Check: theta values reasonable?"]
+
+        PiDiag["π (Dropout) Prediction<br/>━━━━━━━━━━━━━━━<br/>✓ Zero rate matches (±0.05)<br/>  → Dropout well modeled<br/>✓ High sensitivity & specificity<br/>  → Accurate zero prediction<br/>✗ Poor zero metrics<br/>  → Need: Adjust ZINB, more data"]
+
+        CTDiag["Cell Type Prediction<br/>━━━━━━━━━━━━━━━<br/>✓ High accuracy (>0.8)<br/>  → Multi-task helps gene pred<br/>✗ Low accuracy (<0.6)<br/>  → Increase alpha, class weights<br/>Check: Confusion matrix patterns"]
+
+        ExprDiag["Expression Range Handling<br/>━━━━━━━━━━━━━━━<br/>✓ Uniform MAE across levels<br/>  → No systematic bias<br/>✗ High error at low expression<br/>  → Model favors high expression<br/>  → Need: Log-transform, weighting"]
+    end
+
+    ViT --> SpotWise
+    ViT --> Overall
+    SpotWise --> ViTDiag
+
+    GAT --> SpotWise
+    GAT --> GeneWise
+    SpotWise --> GATDiag
+
+    Decoder --> Overall
+    Decoder --> GeneWise
+    Overall --> DecoderDiag
+
+    MuHead --> Overall
+    MuHead --> MAENonZero
+    MAENonZero --> MuDiag
+
+    ThetaHead -.-> Overall
+    ThetaHead --> ThetaDiag
+
+    PiHead --> ZeroRate
+    PiHead --> ZeroDetect
+    ZeroRate --> PiDiag
+    ZeroDetect --> PiDiag
+
+    CTHead --> CellTypeAcc
+    CellTypeAcc --> CTDiag
+
+    MuHead --> ExprLevel
+    ExprLevel --> ExprDiag
+
+    subgraph Workflow["Diagnostic Workflow"]
+        Start["Review All Metrics"] --> Check1{Overall<br/>Pearson r?}
+
+        Check1 -->|r > 0.8| Good1["✓ Model performs well"]
+        Check1 -->|0.6 < r < 0.8| Check2{Gene-wise<br/>vs Spot-wise?}
+        Check1 -->|r < 0.6| Bad["✗ Major issues"]
+
+        Check2 -->|Gene >> Spot| Problem1["Problem: Spatial modeling<br/>Action: Check GAT, k-NN graph"]
+        Check2 -->|Spot >> Gene| Problem2["Problem: Gene-level prediction<br/>Action: Increase capacity,<br/>check gene selection"]
+        Check2 -->|Both similar| Check3{Zero-inflation<br/>metrics?}
+
+        Check3 -->|Good| Check4{Cell type<br/>accuracy?}
+        Check3 -->|Poor| Problem3["Problem: Sparsity modeling<br/>Action: Tune ZINB loss,<br/>check pi predictions"]
+
+        Check4 -->|Good| Check5{Expression<br/>level bias?}
+        Check4 -->|Poor| Problem4["Problem: Multi-task learning<br/>Action: Adjust alpha,<br/>class balancing"]
+
+        Check5 -->|Uniform| Good2["✓ Robust model"]
+        Check5 -->|Biased| Problem5["Problem: Range bias<br/>Action: Normalization,<br/>loss weighting"]
+
+        Bad --> CheckData{Data quality?}
+        CheckData -->|Good| Problem6["Model architecture issue<br/>Actions:<br/>- Increase capacity<br/>- Better initialization<br/>- Longer training"]
+        CheckData -->|Poor| Problem7["Data issue<br/>Actions:<br/>- Check image alignment<br/>- Verify gene expression<br/>- Remove outliers"]
+
+        Good1 --> Deploy["Ready for deployment"]
+        Good2 --> Deploy
+    end
+
+    style ModelComponents fill:#e1f5ff
+    style Metrics fill:#fff4e6
+    style Diagnosis fill:#e8f5e9
+    style Workflow fill:#f3e5f5
+    style Good1 fill:#c8e6c9
+    style Good2 fill:#c8e6c9
+    style Deploy fill:#a5d6a7
+    style Bad fill:#ffcdd2
+    style Problem1 fill:#fff9c4
+    style Problem2 fill:#fff9c4
+    style Problem3 fill:#fff9c4
+    style Problem4 fill:#fff9c4
+    style Problem5 fill:#fff9c4
+    style Problem6 fill:#ffccbc
+    style Problem7 fill:#ffccbc

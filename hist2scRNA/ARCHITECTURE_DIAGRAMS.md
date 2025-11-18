@@ -193,6 +193,102 @@ Aligning multiple coordinate systems:
 
 ---
 
+### 16. Evaluation Metrics Hierarchy
+**File:** [`diagrams/16_evaluation_metrics_hierarchy.mmd`](./diagrams/16_evaluation_metrics_hierarchy.mmd)
+
+Complete framework for model evaluation with 6 metric categories:
+
+1. **Overall Metrics** - Global performance (MSE, RMSE, MAE, R², Pearson, Spearman)
+2. **Gene-wise Metrics** - Per-gene correlation across spots (biological validity)
+3. **Spot-wise Metrics** - Per-spot correlation across genes (spatial accuracy)
+4. **Zero-Inflation Metrics** - Sparsity handling (zero rate, sensitivity, specificity, F1)
+5. **Cell Type Classification** - Multi-task performance (accuracy, F1, confusion matrix)
+6. **Expression Level Analysis** - Stratified performance by expression range
+
+**Each category includes**:
+- Specific metrics computed
+- Interpretation guidelines
+- What researchers should look for
+- Automatic visualization generation
+
+---
+
+### 17. Evaluation Process Flow
+**File:** [`diagrams/17_evaluation_process_flow.mmd`](./diagrams/17_evaluation_process_flow.mmd)
+
+Step-by-step evaluation pipeline:
+- **Load Model & Data**: Trained model + test dataset
+- **Inference Loop**: Batch-wise predictions with no gradient computation
+- **Metrics Computation**: Sequential calculation of all 6 metric categories
+- **Result Export**: JSON file with complete metrics
+- **Visualization**: 5 automatic plots (scatter, correlations, zero-inflation, levels, confusion matrix)
+- **Console Summary**: Human-readable metric summary
+
+**Output Files**:
+- `evaluation_results.json` - All metrics in structured format
+- `plots/overall_scatter.png` - True vs predicted scatter plot
+- `plots/genewise_correlations.png` - Distribution of per-gene correlations
+- `plots/zero_inflation_analysis.png` - Sparsity analysis
+- `plots/expression_levels.png` - Performance by expression range
+- `plots/cell_type_confusion.png` - Classification confusion matrix
+
+---
+
+### 18. Metrics Interpretation Guide
+**File:** [`diagrams/18_metrics_interpretation_guide.mmd`](./diagrams/18_metrics_interpretation_guide.mmd)
+
+Researcher's guide for understanding evaluation results:
+
+**Research Questions → Metrics Mapping**:
+- Q: "How accurate is gene expression?" → Use Overall Metrics
+- Q: "Are cancer markers predicted well?" → Use Gene-wise Metrics
+- Q: "Is spatial accuracy good?" → Use Spot-wise Metrics
+- Q: "Does model capture sparsity?" → Use Zero-Inflation Metrics
+- Q: "Can model identify cell types?" → Use Cell Type Metrics
+- Q: "Model bias towards high expression?" → Use Expression Level Analysis
+
+**Performance Benchmarks**:
+- **Excellent**: Pearson r > 0.85, Gene-wise > 0.75, Zero diff < 0.05, Cell type > 0.80
+- **Good**: Pearson r: 0.70-0.85, Gene-wise: 0.60-0.75, Zero diff: 0.05-0.15, Cell type: 0.70-0.80
+- **Fair**: Pearson r: 0.50-0.70, Gene-wise: 0.40-0.60, Zero diff: 0.15-0.25, Cell type: 0.60-0.70
+- **Poor**: Pearson r < 0.50, needs improvement
+
+**Interpretation → Actions**:
+- Low overall metrics → Train longer, increase capacity, check data quality
+- Low gene-wise → Gene selection, focus on highly variable genes
+- Low spot-wise → Improve spatial graph, enhance GNN
+- Poor zero-inflation → Tune ZINB loss, adjust π prediction
+- Low cell type → Increase α weight, class balancing
+
+---
+
+### 19. Metrics to Model Components
+**File:** [`diagrams/19_metrics_to_model_components.mmd`](./diagrams/19_metrics_to_model_components.mmd)
+
+Maps evaluation metrics to specific model components for debugging:
+
+**Component Diagnostics**:
+- **ViT Quality**: Reflected in spot-wise correlations
+  - High → Good feature extraction
+  - Low → Need better ViT or pretraining
+- **GAT Spatial Modeling**: Reflected in spot-wise + gene-wise correlations
+  - High with GAT → Spatial context helps
+  - Similar without GAT → Graph not effective, adjust k
+- **Decoder Capacity**: Reflected in overall correlations
+  - Low overall but high spot-wise → Decoder bottleneck
+- **μ (Mean) Prediction**: Reflected in MAE for non-zero values
+  - High MAE → Mean estimation poor, check loss weighting
+- **π (Dropout) Prediction**: Reflected in zero-inflation metrics
+  - Zero rate mismatch → Poor dropout modeling
+  - Low sensitivity/specificity → Adjust ZINB parameters
+- **Cell Type Head**: Reflected in classification metrics
+  - High accuracy → Multi-task learning helps
+  - Confusion patterns → Similar morphology or shared markers
+
+**Diagnostic Workflow**: Decision tree for troubleshooting based on metric patterns.
+
+---
+
 ## 🎨 Design Rationale
 
 | Component | Choice | Rationale |
