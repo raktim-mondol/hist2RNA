@@ -21,7 +21,7 @@
 
 ## ⚡ NEW: Single-Cell RNA-seq Prediction (hist2scRNA) ⚡
 
-We now support **single-cell and spatial transcriptomics prediction** with our new **hist2scRNA** model! This state-of-the-art extension uses Vision Transformers and Graph Neural Networks to predict spatially-resolved gene expression at single-cell resolution.
+We now support **single-cell and spatial transcriptomics prediction** with our new **hist2scRNA** model. This state-of-the-art extension uses Vision Transformers and Graph Neural Networks to predict spatially-resolved gene expression at single-cell resolution.
 
 **Key features of hist2scRNA:**
 - Vision Transformer (ViT) architecture for superior feature extraction
