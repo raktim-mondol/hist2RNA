@@ -1,0 +1,22 @@
+graph TB
+    subgraph "Graph Attention Layer"
+        A[Node Features<br/>n_nodes×in_channels] --> B[Linear Transform<br/>W·h]
+        C[Edge Index<br/>2×n_edges] --> D[Gather Neighbors]
+
+        B --> E[Compute Attention<br/>for each edge]
+        D --> E
+
+        subgraph "Attention Mechanism"
+            E --> F[Attention Scores<br/>α_ij = a W·h_i, W·h_j]
+            F --> G[LeakyReLU]
+            G --> H[Softmax per node<br/>Normalize neighbors]
+        end
+
+        H --> I[Weighted Sum<br/>h'_i = Σ α_ij·W·h_j]
+        I --> J[Multi-Head Concat<br/>or Average]
+        J --> K[ELU Activation]
+        K --> L[Output Features<br/>n_nodes×out_channels]
+    end
+
+    style E fill:#ffe1f5
+    style I fill:#e1f5ff

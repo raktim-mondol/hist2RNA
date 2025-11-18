@@ -1,0 +1,40 @@
+sequenceDiagram
+    participant I as Input Image
+    participant PE as Patch Embedding
+    participant ViT as Vision Transformer
+    participant GAT as Graph Attention
+    participant Dec as Decoder
+    participant ZINB as ZINB Heads
+    participant CT as Cell Type Head
+    participant Out as Output
+
+    I->>PE: 224×224×3 image
+    PE->>PE: Split into 196 patches
+    PE->>ViT: 196×embed_dim tokens
+
+    loop 6-12 Transformer Blocks
+        ViT->>ViT: Multi-Head Self-Attention
+        ViT->>ViT: Feed-Forward Network
+    end
+
+    ViT->>GAT: Class token (global features)
+
+    Note over GAT: Spatial Graph Processing
+    GAT->>GAT: Graph Attention Layer 1<br/>Multi-head aggregation
+    GAT->>GAT: Graph Attention Layer 2<br/>Single-head output
+
+    GAT->>Dec: Spatially-aware features
+    Dec->>Dec: Dense Layer 1 (1024)
+    Dec->>Dec: Dense Layer 2 (2048)
+
+    par Parallel Heads
+        Dec->>ZINB: μ decoder (Mean)
+        Dec->>ZINB: θ decoder (Dispersion)
+        Dec->>ZINB: π decoder (Zero-inflation)
+        Dec->>CT: Cell Type classifier
+    end
+
+    ZINB->>Out: Gene expression (n_genes)
+    CT->>Out: Cell type (n_cell_types)
+
+    Note over Out: Loss Computation<br/>ZINB Loss + CE Loss

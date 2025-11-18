@@ -1,0 +1,86 @@
+graph TB
+    subgraph "Whole Slide Image WSI"
+        A[WSI Dimensions<br/>e.g., 75,000 × 62,000 pixels<br/>Resolution: 0.25 μm/pixel]
+    end
+
+    subgraph "Spot Location"
+        B[Spot Coordinates<br/>from Visium]
+        B1[spot_id: spot_0001]
+        B2[x: 15,250 pixels]
+        B3[y: 23,400 pixels]
+
+        B --> B1
+        B --> B2
+        B --> B3
+    end
+
+    subgraph "Calculate Patch Boundaries"
+        C[Patch Size: 224×224]
+        C1[Half Size: 112]
+        C2[left = x - 112]
+        C3[top = y - 112]
+        C4[right = x + 112]
+        C5[bottom = y + 112]
+
+        C --> C1
+        C1 --> C2
+        C1 --> C3
+        C1 --> C4
+        C1 --> C5
+    end
+
+    subgraph "Extract Region from WSI"
+        D[slide.read_region<br/>location, level, size]
+        D1[location: left, top]
+        D2[level: 0 highest res]
+        D3[size: 224, 224]
+        D4[Raw Patch<br/>RGBA format]
+
+        D --> D1
+        D --> D2
+        D --> D3
+        D --> D4
+    end
+
+    subgraph "Post-Processing"
+        E1[Convert to RGB<br/>Remove alpha channel]
+        E2[Check Quality<br/>% tissue coverage]
+        E3{Quality<br/>OK?}
+        E4[Apply Color Norm<br/>Macenko]
+        E5[Discard Patch<br/>Too much background]
+
+        D4 --> E1
+        E1 --> E2
+        E2 --> E3
+        E3 -->|Yes >50%| E4
+        E3 -->|No <50%| E5
+    end
+
+    subgraph "Save Patch"
+        F1[Save as PNG<br/>patches/spot_0001.png]
+        F2[224×224×3<br/>RGB image]
+        F3[File size: ~50-200 KB]
+
+        E4 --> F1
+        F1 --> F2
+        F2 --> F3
+    end
+
+    subgraph "Visual Representation"
+        G1["┌─────────────────────┐<br/>│   WSI               │<br/>│                     │<br/>│     ● spot          │<br/>│    ┌───┐            │<br/>│    │224│            │<br/>│    └───┘            │<br/>└─────────────────────┘"]
+        G2[Extracted patch<br/>centered on spot]
+
+        F3 --> G1
+        G1 --> G2
+    end
+
+    A --> B
+    B3 --> C
+    C5 --> D
+    F3 --> H[Store Coordinates<br/>for spatial graph]
+
+    style A fill:#ffe1e1
+    style B fill:#e1f5ff
+    style E4 fill:#fff4e1
+    style F1 fill:#e1ffe1
+    style E5 fill:#ffcccc

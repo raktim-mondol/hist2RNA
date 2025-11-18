@@ -1,0 +1,58 @@
+graph TB
+    subgraph Input
+        A[Histopathology Image<br/>224×224×3] --> B[Patch Embedding<br/>16×16 patches]
+        C[Spatial Coordinates<br/>x, y] --> D[Spatial Graph<br/>k-NN edges]
+    end
+
+    subgraph "Vision Transformer Encoder"
+        B --> E[Patch Tokens<br/>196×embed_dim]
+        E --> F[Add Positional Embedding]
+        F --> G[Multi-Head Self-Attention]
+        G --> H[Feed-Forward Network]
+        H --> I[Transformer Blocks<br/>×6-12 layers]
+        I --> J[Class Token<br/>Global Image Features]
+    end
+
+    subgraph "Spatial Graph Attention"
+        J --> K[Spot Features<br/>embed_dim]
+        D --> L[Graph Edges]
+        K --> M[Graph Attention Layer 1<br/>Multi-head GAT]
+        L --> M
+        M --> N[Graph Attention Layer 2<br/>Single-head GAT]
+        L --> N
+        N --> O[Spatially-Aware Features<br/>gnn_hidden_dim]
+    end
+
+    subgraph "Gene Expression Decoder"
+        O --> P[Dense Layer 1<br/>1024 units]
+        P --> Q[Dense Layer 2<br/>2048 units]
+        Q --> R[ZINB Parameter Heads]
+
+        R --> S1[μ decoder<br/>Mean Expression]
+        R --> S2[θ decoder<br/>Dispersion]
+        R --> S3[π decoder<br/>Zero-inflation]
+
+        S1 --> T1[μ: n_genes<br/>exp activation]
+        S2 --> T2[θ: n_genes<br/>exp activation]
+        S3 --> T3[π: n_genes<br/>sigmoid activation]
+    end
+
+    subgraph "Cell Type Prediction"
+        Q --> U[Cell Type Head<br/>n_cell_types]
+        U --> V[Cell Type Logits<br/>softmax]
+    end
+
+    subgraph Output
+        T1 --> W1[Gene Expression<br/>Mean per gene]
+        T2 --> W2[Expression Variance<br/>Dispersion per gene]
+        T3 --> W3[Dropout Probability<br/>Zero-inflation per gene]
+        V --> W4[Cell Type<br/>Predicted class]
+    end
+
+    style A fill:#e1f5ff
+    style J fill:#fff4e1
+    style O fill:#ffe1f5
+    style W1 fill:#e1ffe1
+    style W2 fill:#e1ffe1
+    style W3 fill:#e1ffe1
+    style W4 fill:#ffe1e1

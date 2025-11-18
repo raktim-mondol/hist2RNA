@@ -1,0 +1,39 @@
+graph TB
+    subgraph "Zero-Inflated Negative Binomial"
+        A[Decoder Output<br/>2048 features] --> B{Three Heads}
+
+        B --> C1[μ Head<br/>Linear → Exp]
+        B --> C2[θ Head<br/>Linear → Exp]
+        B --> C3[π Head<br/>Linear → Sigmoid]
+
+        C1 --> D1[μ ∈ ℝ+<br/>Mean Expression]
+        C2 --> D2[θ ∈ ℝ+<br/>Dispersion]
+        C3 --> D3[π ∈ 0,1<br/>Zero Prob]
+    end
+
+    subgraph "ZINB Loss Computation"
+        D1 --> E[Target Expression y]
+        D2 --> E
+        D3 --> E
+
+        E --> F{y = 0?}
+
+        F -->|Yes| G[Zero Case<br/>log π + 1-π·NB0]
+        F -->|No| H[Non-Zero Case<br/>log 1-π + log NBμ,θy]
+
+        subgraph "Negative Binomial"
+            H --> I[log Γθ+y]
+            I --> J[- log Γθ]
+            J --> K[- log Γy+1]
+            K --> L[+ θ·log θ]
+            L --> M[- θ+y·log θ+μ]
+        end
+
+        G --> N[Mean Loss<br/>across batch & genes]
+        M --> N
+    end
+
+    style D1 fill:#e1ffe1
+    style D2 fill:#e1ffe1
+    style D3 fill:#e1ffe1
+    style N fill:#ffe1e1

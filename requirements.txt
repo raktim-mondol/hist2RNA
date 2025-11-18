@@ -5,13 +5,11 @@ statsmodels
 numpy
 scikit-learn
 sklearn
-csv
 tqdm
 Pillow
-random
 scipy
-glob
 torch
 torchvision
 torchaudio
+torch_geometric
 

@@ -1,0 +1,75 @@
+flowchart TD
+    Start([Start Training]) --> Init[Initialize Model<br/>ViT + GAT + Decoder]
+    Init --> LoadData[Load Dataset<br/>Images + Expression + Graph]
+
+    LoadData --> Split{Split Data}
+    Split --> Train[Training Set<br/>70%]
+    Split --> Val[Validation Set<br/>15%]
+    Split --> Test[Test Set<br/>15%]
+
+    Train --> Epoch{For Each Epoch}
+
+    Epoch --> TrainLoop[Training Loop]
+
+    subgraph "Training Loop"
+        TrainLoop --> Batch1[Get Batch<br/>images, targets, edges]
+        Batch1 --> Forward1[Forward Pass<br/>ViT → GAT → Decoder]
+        Forward1 --> Loss1[Compute Losses]
+
+        subgraph "Loss Computation"
+            Loss1 --> ZINB[ZINB Loss<br/>Gene Expression]
+            Loss1 --> CE[Cross-Entropy<br/>Cell Type]
+            ZINB --> Combined[Combined Loss<br/>L = L_ZINB + α×L_CE]
+            CE --> Combined
+        end
+
+        Combined --> Backward[Backward Pass<br/>Compute Gradients]
+        Backward --> Update[Update Parameters<br/>AdamW Optimizer]
+    end
+
+    Update --> ValLoop[Validation Loop]
+
+    subgraph "Validation Loop"
+        ValLoop --> Batch2[Get Batch<br/>No Gradient]
+        Batch2 --> Forward2[Forward Pass]
+        Forward2 --> ComputeMetrics[Compute Metrics]
+
+        subgraph "Metrics"
+            ComputeMetrics --> M1[Val Loss]
+            ComputeMetrics --> M2[Spearman Corr]
+            ComputeMetrics --> M3[Cell Type Acc]
+        end
+    end
+
+    M1 --> CheckImprove{Val Loss<br/>Improved?}
+    CheckImprove -->|Yes| Save[Save Best Model<br/>Checkpoint]
+    CheckImprove -->|No| Counter[Increment Counter]
+
+    Save --> LR[Update LR<br/>ReduceLROnPlateau]
+    Counter --> LR
+
+    LR --> EarlyStop{Early<br/>Stopping?}
+    EarlyStop -->|No| Epoch
+    EarlyStop -->|Yes| LoadBest[Load Best Model]
+
+    Epoch -->|All Epochs Done| LoadBest
+
+    LoadBest --> TestLoop[Test Evaluation]
+
+    subgraph "Test Evaluation"
+        TestLoop --> TestMetrics[Compute Test Metrics]
+        TestMetrics --> TM1[MSE, MAE]
+        TestMetrics --> TM2[Per-Spot Correlation]
+        TestMetrics --> TM3[Per-Gene Correlation]
+        TestMetrics --> TM4[Cell Type Accuracy]
+    end
+
+    TM4 --> SaveResults[Save Results<br/>results.json]
+    SaveResults --> PlotCurves[Plot Training Curves<br/>Loss vs Epoch]
+    PlotCurves --> End([Training Complete])
+
+    style Start fill:#e1ffe1
+    style ZINB fill:#ffe1e1
+    style CE fill:#ffe1e1
+    style Save fill:#e1f5ff
+    style End fill:#e1ffe1

@@ -1,0 +1,30 @@
+graph LR
+    subgraph "Input Variants"
+        I1[Raw Images<br/>224×224] --> M1[Full Model]
+        I2[Pre-extracted<br/>Features] --> M2[Lightweight Model]
+    end
+
+    subgraph "Model Configurations"
+        M1 --> C1[Small<br/>embed_dim=256<br/>depth=4]
+        M1 --> C2[Medium<br/>embed_dim=384<br/>depth=6]
+        M1 --> C3[Large<br/>embed_dim=768<br/>depth=12]
+
+        M2 --> C4[Lightweight<br/>Feature Input<br/>No ViT]
+    end
+
+    subgraph "Computational Cost"
+        C1 --> P1[~10M params<br/>Fast training]
+        C2 --> P2[~50M params<br/>Balanced]
+        C3 --> P3[~300M params<br/>Best accuracy]
+        C4 --> P4[~15M params<br/>Fastest]
+    end
+
+    subgraph "Use Cases"
+        P1 --> U1[Development<br/>Quick iterations]
+        P2 --> U2[Research<br/>SOTA performance]
+        P3 --> U3[Production<br/>Maximum accuracy]
+        P4 --> U4[Edge Devices<br/>Real-time inference]
+    end
+
+    style C2 fill:#e1ffe1
+    style P2 fill:#e1f5ff

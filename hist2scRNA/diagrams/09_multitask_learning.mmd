@@ -1,0 +1,43 @@
+graph TB
+    subgraph "Shared Backbone"
+        A[H&E Image] --> B[Vision Transformer<br/>Feature Extractor]
+        B --> C[Graph Attention<br/>Spatial Context]
+        C --> D[Shared Decoder<br/>2048 features]
+    end
+
+    subgraph "Task 1: Gene Expression"
+        D --> E1[ZINB μ Head<br/>Mean expression]
+        D --> E2[ZINB θ Head<br/>Dispersion]
+        D --> E3[ZINB π Head<br/>Zero-inflation]
+
+        E1 --> F1[Predicted μ<br/>n_genes]
+        E2 --> F2[Predicted θ<br/>n_genes]
+        E3 --> F3[Predicted π<br/>n_genes]
+
+        F1 --> G1[ZINB Loss]
+        F2 --> G1
+        F3 --> G1
+    end
+
+    subgraph "Task 2: Cell Type"
+        D --> H1[Classification Head<br/>n_cell_types]
+        H1 --> H2[Cell Type Logits]
+        H2 --> I1[Cross-Entropy Loss]
+    end
+
+    subgraph "Combined Loss"
+        G1 --> J[L_total = L_ZINB + α×L_CE]
+        I1 --> J
+        J --> K[Backpropagate<br/>Update Shared Weights]
+    end
+
+    K --> L{Benefits}
+    L --> M1[✓ Shared representations]
+    L --> M2[✓ Regularization effect]
+    L --> M3[✓ Better generalization]
+    L --> M4[✓ Biological consistency]
+
+    style D fill:#e1f5ff
+    style G1 fill:#ffe1e1
+    style I1 fill:#ffe1e1
+    style J fill:#fff4e1
