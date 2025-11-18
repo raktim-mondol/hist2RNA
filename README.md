@@ -18,13 +18,34 @@
 
 **hist2RNA** is an efficient deep learning-based project that aims to predict gene expression from breast cancer histopathology images. This project employs a efficient architecture to unlock underlying genetic expression in breast cancer.
 
+### 🆕 NEW: Single-Cell RNA-seq Prediction (hist2scRNA)
+
+We now support **single-cell and spatial transcriptomics prediction** with our new **hist2scRNA** model! This state-of-the-art extension uses Vision Transformers and Graph Neural Networks to predict spatially-resolved gene expression at single-cell resolution.
+
+**Key features of hist2scRNA:**
+- Vision Transformer (ViT) architecture for superior feature extraction
+- Graph Neural Networks for spatial relationship modeling
+- Zero-Inflated Negative Binomial (ZINB) loss for handling single-cell sparsity
+- Multi-task learning with cell type prediction
+- State-of-the-art performance based on GHIST, Hist2ST, and TransformerST
+
+📖 **Quick Start:** See [QUICKSTART_SCRNA.md](QUICKSTART_SCRNA.md)
+📚 **Full Documentation:** See [SCRNA_README.md](SCRNA_README.md)
 
 ## Features
 
+### Bulk RNA Prediction (Original hist2RNA)
 - A state-of-the-art deep learning model tailored for breast cancer histopathology images
 - Efficient prediction of gene expression from histopathology images which means less training time
 - User-friendly command-line interface
 - Comprehensive documentation and tutorials
+
+### Single-Cell RNA Prediction (NEW hist2scRNA)
+- Vision Transformer-based architecture for patch-level feature extraction
+- Spatial graph attention for modeling cell-cell interactions
+- Handles single-cell data sparsity with ZINB distribution
+- Simultaneous gene expression and cell type prediction
+- Compatible with 10X Visium and other spatial transcriptomics platforms
 
 ## Data Sources
 
