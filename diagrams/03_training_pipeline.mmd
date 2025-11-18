@@ -32,12 +32,12 @@ flowchart TD
     subgraph "Validation Loop"
         ValLoop --> Batch2[Get Batch<br/>No Gradient]
         Batch2 --> Forward2[Forward Pass]
-        Forward2 --> Metrics[Compute Metrics]
+        Forward2 --> ComputeMetrics[Compute Metrics]
 
         subgraph "Metrics"
-            Metrics --> M1[Val Loss]
-            Metrics --> M2[Spearman Corr]
-            Metrics --> M3[Cell Type Acc]
+            ComputeMetrics --> M1[Val Loss]
+            ComputeMetrics --> M2[Spearman Corr]
+            ComputeMetrics --> M3[Cell Type Acc]
         end
     end
 
