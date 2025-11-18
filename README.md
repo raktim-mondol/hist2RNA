@@ -18,7 +18,14 @@
 
 **hist2RNA** is an efficient deep learning-based project that aims to predict gene expression from breast cancer histopathology images. This project employs a efficient architecture to unlock underlying genetic expression in breast cancer.
 
-<span style="background-color: yellow;">NEW: Single-Cell RNA-seq Prediction (hist2scRNA)</span>
+<span style="background-color: yellow; animation: blink 1.5s infinite;">**NEW: Single-Cell RNA-seq Prediction (hist2scRNA)**</span>
+
+<style>
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+</style>
 
 We now support **single-cell and spatial transcriptomics prediction** with our new **hist2scRNA** model! This state-of-the-art extension uses Vision Transformers and Graph Neural Networks to predict spatially-resolved gene expression at single-cell resolution.
 
