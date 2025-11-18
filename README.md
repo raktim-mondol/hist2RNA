@@ -29,9 +29,9 @@ We now support **single-cell and spatial transcriptomics prediction** with our n
 - Multi-task learning with cell type prediction
 - State-of-the-art performance based on GHIST, Hist2ST, and TransformerST
 
-📖 **Quick Start:** See [QUICKSTART_SCRNA.md](QUICKSTART_SCRNA.md)
-📚 **Full Documentation:** See [SCRNA_README.md](SCRNA_README.md)
-📊 **Architecture Diagrams:** See [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)
+📖 **Quick Start:** See [hist2scRNA/QUICKSTART_SCRNA.md](hist2scRNA/QUICKSTART_SCRNA.md)
+📚 **Full Documentation:** See [hist2scRNA/SCRNA_README.md](hist2scRNA/SCRNA_README.md)
+📊 **Architecture Diagrams:** See [hist2scRNA/ARCHITECTURE_DIAGRAMS.md](hist2scRNA/ARCHITECTURE_DIAGRAMS.md)
 
 ## Features
 
