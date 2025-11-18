@@ -4,6 +4,8 @@
 
 This guide will get you up and running with hist2scRNA in just a few minutes.
 
+📊 **Want to understand the architecture?** See [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md) for comprehensive visual diagrams.
+
 ## Step 1: Installation (2 minutes)
 
 ```bash

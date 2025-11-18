@@ -15,6 +15,8 @@
 
 ## Architecture
 
+📊 **Visual Diagrams:** See [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md) for comprehensive Mermaid diagrams of the architecture, data flow, and training process.
+
 The hist2scRNA model consists of three main components:
 
 ### 1. Vision Transformer (ViT) Encoder

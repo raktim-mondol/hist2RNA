@@ -31,6 +31,7 @@ We now support **single-cell and spatial transcriptomics prediction** with our n
 
 📖 **Quick Start:** See [QUICKSTART_SCRNA.md](QUICKSTART_SCRNA.md)
 📚 **Full Documentation:** See [SCRNA_README.md](SCRNA_README.md)
+📊 **Architecture Diagrams:** See [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)
 
 ## Features
 
